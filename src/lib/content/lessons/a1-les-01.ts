@@ -9,7 +9,7 @@ export const LES_01: Lesson = {
   estimatedMinutes: 8,
   sections: [
     {
-      id: 'intro',
+      id: 'uitleg-1',
       type: 'uitleg',
       payload: {
         blocks: [
@@ -25,7 +25,7 @@ export const LES_01: Lesson = {
       },
     },
     {
-      id: 'woorden',
+      id: 'woorden-1',
       type: 'woorden',
       payload: {
         intro:
@@ -112,7 +112,7 @@ export const LES_01: Lesson = {
       },
     },
     {
-      id: 'spreken',
+      id: 'spreken-1',
       type: 'spreken',
       payload: {
         intro:

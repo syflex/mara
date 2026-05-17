@@ -259,13 +259,13 @@ Each step is independently shippable. Sized so half a step fits in an evening an
 
 Stop adding section types and ship when all of these are true. Anything beyond this is scope creep.
 
-- [ ] Home opens directly to **Today** — next unfinished lesson + one-line progress, no menu-picking.
-- [ ] Ordered lesson path from Les 1 → Les 20, sequential unlock.
-- [ ] At least **7 lessons fully authored** (audio + sections + words).
-- [ ] Each authored lesson has: intro vocab, at least one practice section, and one `schrijven` or `spreken` prompt.
-- [ ] Words from completed lessons flow into the SRS automatically (no manual deck building).
-- [ ] `/review` exists and merges everything due today behind one button.
-- [ ] One full daily loop is completable in ≤30 minutes (your budget).
+- [x] Home opens directly to **Today** — next unfinished lesson + one-line progress, no menu-picking.
+- [x] Ordered lesson path from Les 1 → Les 20, sequential unlock.
+- [x] At least **7 lessons fully authored** (audio + sections + words). *(7 authored; curriculum follows the daily-pacing list — Hallo / Ik ben / Questions / Wonen / Numbers / Objects / Familie. The 20-lesson curriculum table waits on klanken/drill/de-het/luisteren components.)*
+- [x] Each authored lesson has: intro vocab, at least one practice section, and one `schrijven` or `spreken` prompt.
+- [x] Words from completed lessons flow into the SRS automatically (no manual deck building).
+- [x] `/review` exists and merges everything due today behind one button.
+- [x] One full daily loop is completable in ≤30 minutes (your budget).
 
 ## Out of scope for A0→A1 (revisit in A1→A2)
 

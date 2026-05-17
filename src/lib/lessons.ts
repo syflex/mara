@@ -1,6 +1,7 @@
 import { db } from './db';
 import { LESSONS } from './content/lessons';
-import type { Lesson, LessonProgress } from './types';
+import { newSrsState } from './srs';
+import type { Lesson, LessonProgress, VocabCard, Woord } from './types';
 
 export function isLessonComplete(progress: LessonProgress | undefined): boolean {
   return !!progress?.completedAt;
@@ -91,4 +92,70 @@ export async function markLessonComplete(lessonId: string): Promise<void> {
     sectionIdsCompleted: existing?.sectionIdsCompleted ?? [],
     updatedAt: now,
   });
+  const lesson = LESSONS.find((l) => l.id === lessonId);
+  if (lesson) await importLessonVocab(lesson);
+}
+
+function vocabIdFor(nl: string): string {
+  const slug = nl
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `vocab:${slug}`;
+}
+
+function woordToVocabCard(word: Woord, lesson: Lesson): VocabCard {
+  return {
+    id: vocabIdFor(word.nl),
+    dutch: word.nl,
+    english: word.en,
+    partOfSpeech: word.gender ? 'noun' : 'phrase',
+    gender: word.gender,
+    exampleNl: word.exampleNl,
+    exampleEn: word.exampleEn,
+    level: 'A0',
+    source: 'lesson',
+    lessonId: lesson.id,
+    audioId: word.audioId,
+    srs: newSrsState(),
+    createdAt: Date.now(),
+  };
+}
+
+function collectWoorden(lesson: Lesson): Woord[] {
+  const out: Woord[] = [];
+  for (const section of lesson.sections) {
+    if (section.type === 'woorden') out.push(...section.payload.words);
+  }
+  return out;
+}
+
+/** Idempotent: words already in db.vocab are skipped by id. */
+export async function importLessonVocab(lesson: Lesson): Promise<number> {
+  const words = collectWoorden(lesson);
+  if (words.length === 0) return 0;
+  const ids = words.map((w) => vocabIdFor(w.nl));
+  const existing = await db.vocab.bulkGet(ids);
+  const toAdd: VocabCard[] = [];
+  words.forEach((w, i) => {
+    if (!existing[i]) toAdd.push(woordToVocabCard(w, lesson));
+  });
+  if (toAdd.length > 0) await db.vocab.bulkAdd(toAdd);
+  return toAdd.length;
+}
+
+/**
+ * Walks every completed lesson and ensures its words are in db.vocab.
+ * Safe to call on every app load (idempotent). Lets users who completed
+ * lessons before this hookup existed still get their vocab populated.
+ */
+export async function backfillLessonVocab(): Promise<void> {
+  const completed = await db.lessonProgress
+    .where('completedAt')
+    .above(0)
+    .toArray();
+  for (const p of completed) {
+    const lesson = LESSONS.find((l) => l.id === p.lessonId);
+    if (lesson) await importLessonVocab(lesson);
+  }
 }

@@ -1,14 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import {
+  backfillLessonVocab,
   completionStats,
   indexProgress,
   nextUnfinishedLesson,
 } from '@/lib/lessons';
+import { dueSoonCount } from '@/lib/srs';
 import type { Lesson } from '@/lib/types';
 
 type Track = 'A0-A1' | 'A1-A2';
@@ -66,13 +68,20 @@ function TrackSwitcher({
 }
 
 function BeginnerTrack() {
+  useEffect(() => {
+    void backfillLessonVocab();
+  }, []);
+
   const progressRows = useLiveQuery(() => db.lessonProgress.toArray(), []);
-  const vocab = useLiveQuery(() => db.vocab.toArray(), []);
+  const vocab = useLiveQuery(
+    () => db.vocab.where('source').equals('lesson').toArray(),
+    [],
+  );
 
   const progressByLesson = indexProgress(progressRows);
   const { completed, total } = completionStats(progressByLesson);
   const next = nextUnfinishedLesson(progressByLesson);
-  const vocabTotal = vocab?.length ?? 0;
+  const vocabStats = vocab ? dueSoonCount(vocab) : null;
 
   return (
     <div className="space-y-8">
@@ -89,6 +98,10 @@ function BeginnerTrack() {
         <AllDoneCard />
       )}
 
+      {vocabStats && vocabStats.due + vocabStats.newCount > 0 && (
+        <ReviewCta count={vocabStats.due + vocabStats.newCount} />
+      )}
+
       <section className="space-y-3">
         <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
           Meer
@@ -100,12 +113,12 @@ function BeginnerTrack() {
             subtitle={`${total} ${total === 1 ? 'les' : 'lessen'}`}
           />
           <SecondaryCard
-            href="/vocab"
-            title="Woordreview"
+            href="/review"
+            title="Review"
             subtitle={
-              vocabTotal === 0
+              !vocabStats || vocabStats.total === 0
                 ? 'Komt na voltooide lessen'
-                : `${vocabTotal} woorden`
+                : `${vocabStats.due + vocabStats.newCount} klaar · ${vocabStats.total} woorden`
             }
           />
         </div>
@@ -157,6 +170,29 @@ function NextLessonCard({ lesson, isFirst }: { lesson: Lesson; isFirst: boolean 
         </span>
         <span className="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white">
           {isFirst ? 'Beginnen →' : 'Doorgaan →'}
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function ReviewCta({ count }: { count: number }) {
+  return (
+    <Link
+      href="/review"
+      className="block rounded-2xl border border-zinc-200 bg-white p-5 transition-shadow hover:shadow-sm"
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+            Review
+          </p>
+          <p className="mt-1 text-base font-medium text-zinc-900">
+            {count} {count === 1 ? 'woord' : 'woorden'} klaar
+          </p>
+        </div>
+        <span className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700">
+          Start review →
         </span>
       </div>
     </Link>

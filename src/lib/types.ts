@@ -35,7 +35,7 @@ export type PartOfSpeech =
   | 'numeral'
   | 'phrase';
 
-export type Level = 'A1' | 'A2' | 'B1';
+export type Level = 'A0' | 'A1' | 'A2' | 'B1';
 
 export type SrsCardState = 'new' | 'learning' | 'review' | 'relearning';
 
@@ -80,7 +80,9 @@ export interface VocabCard {
   theme?: KnmTheme;
   level: Level;
   notes?: string;
-  source: 'official-a2' | 'starter' | 'custom';
+  source: 'official-a2' | 'starter' | 'custom' | 'lesson';
+  lessonId?: string;
+  audioId?: string;
   srs: SrsState;
   createdAt: number;
 }
@@ -212,13 +214,32 @@ export interface SprekenPayload {
   lines: SprekenLine[];
 }
 
+export interface KlankExample {
+  nl: string;
+  en?: string;
+  audioId?: string;
+}
+
+export interface KlankSound {
+  id: string;
+  display: string;
+  hint?: string;
+  examples: KlankExample[];
+}
+
+export interface KlankenPayload {
+  intro?: string;
+  sounds: KlankSound[];
+}
+
 export type LessonSection =
   | { id: string; type: 'uitleg'; payload: UitlegPayload }
   | { id: string; type: 'woorden'; payload: WoordenPayload }
   | { id: string; type: 'spreken'; payload: SprekenPayload }
+  | { id: string; type: 'klanken'; payload: KlankenPayload }
   | {
       id: string;
-      type: Exclude<SectionType, 'uitleg' | 'woorden' | 'spreken'>;
+      type: Exclude<SectionType, 'uitleg' | 'woorden' | 'spreken' | 'klanken'>;
       payload: unknown;
     };
 
