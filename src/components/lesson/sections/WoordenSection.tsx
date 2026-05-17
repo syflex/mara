@@ -28,7 +28,20 @@ export default function WoordenSection({ lessonId, payload }: Props) {
                   )}
                   {w.nl}
                 </p>
-                <p className="mt-0.5 text-sm text-zinc-500">{w.en}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+                  <span>{w.en}</span>
+                  {w.formality && (
+                    <span
+                      className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+                        w.formality === 'formeel'
+                          ? 'bg-sky-50 text-sky-700'
+                          : 'bg-amber-50 text-amber-700'
+                      }`}
+                    >
+                      {w.formality}
+                    </span>
+                  )}
+                </p>
               </div>
               {w.audioId && (
                 <AudioPlayer lessonId={lessonId} audioId={w.audioId} label="" />

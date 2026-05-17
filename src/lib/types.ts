@@ -189,6 +189,7 @@ export interface Woord {
   nl: string;
   en: string;
   gender?: 'de' | 'het';
+  formality?: 'informeel' | 'formeel';
   audioId?: string;
   exampleNl?: string;
   exampleEn?: string;

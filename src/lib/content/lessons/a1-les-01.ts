@@ -15,31 +15,11 @@ export const LES_01: Lesson = {
         blocks: [
           {
             kind: 'heading',
-            text: 'Welkom bij je eerste Nederlandse les.',
+            text: 'Greet someone in Dutch',
           },
           {
             kind: 'paragraph',
-            text: 'In deze les leer je de meestgebruikte Nederlandse begroetingen. Begroetingen zijn de eerste woorden die je elke dag hoort in Nederland — in de winkel, op straat en op je werk.',
-          },
-          {
-            kind: 'heading',
-            text: 'Formeel en informeel',
-          },
-          {
-            kind: 'paragraph',
-            text: 'Het Nederlands maakt onderscheid tussen formele en informele begroetingen. Bij vreemden, collega’s en oudere mensen gebruik je formele woorden zoals "goedemorgen" of "tot ziens". Bij vrienden en familie gebruik je informele woorden zoals "hoi" of "doei".',
-          },
-          {
-            kind: 'heading',
-            text: 'Tips voor uitspraak',
-          },
-          {
-            kind: 'list',
-            items: [
-              'De Nederlandse "g" klinkt rauwer dan in het Engels — denk aan "goedemorgen".',
-              'De "ij" in "ziens" klinkt als "ay" in het Engelse "say".',
-              'Druk op de 🔊 knop bij elk woord om de uitspraak te horen.',
-            ],
+            text: "You'll learn 10 ways to say hello and goodbye — formal for strangers and older people, casual for friends.",
           },
         ],
       },
@@ -49,7 +29,7 @@ export const LES_01: Lesson = {
       type: 'woorden',
       payload: {
         intro:
-          'Tien begroetingen. Druk op 🔊 om de uitspraak te horen, en lees het voorbeeld om te zien hoe je het woord gebruikt.',
+          "Tap 🔊 to hear each word. Tip: the Dutch \"g\" is rougher than in English.",
         words: [
           {
             nl: 'hallo',
@@ -60,7 +40,8 @@ export const LES_01: Lesson = {
           },
           {
             nl: 'hoi',
-            en: 'hi (informal)',
+            en: 'hi',
+            formality: 'informeel',
             audioId: 'hoi',
             exampleNl: 'Hoi! Wat doe je?',
             exampleEn: 'Hi! What are you doing?',
@@ -70,11 +51,12 @@ export const LES_01: Lesson = {
             en: 'hi / bye',
             audioId: 'dag',
             exampleNl: 'Dag mevrouw.',
-            exampleEn: 'Hello / goodbye, madam.',
+            exampleEn: 'Hello / goodbye, ma’am.',
           },
           {
             nl: 'goedemorgen',
             en: 'good morning',
+            formality: 'formeel',
             audioId: 'goedemorgen',
             exampleNl: 'Goedemorgen! Slaap je goed?',
             exampleEn: 'Good morning! Did you sleep well?',
@@ -82,6 +64,7 @@ export const LES_01: Lesson = {
           {
             nl: 'goedemiddag',
             en: 'good afternoon',
+            formality: 'formeel',
             audioId: 'goedemiddag',
             exampleNl: 'Goedemiddag, kan ik u helpen?',
             exampleEn: 'Good afternoon, can I help you?',
@@ -89,6 +72,7 @@ export const LES_01: Lesson = {
           {
             nl: 'goedenavond',
             en: 'good evening',
+            formality: 'formeel',
             audioId: 'goedenavond',
             exampleNl: 'Goedenavond, welkom thuis.',
             exampleEn: 'Good evening, welcome home.',
@@ -96,13 +80,15 @@ export const LES_01: Lesson = {
           {
             nl: 'goedenacht',
             en: 'good night',
+            formality: 'formeel',
             audioId: 'goedenacht',
             exampleNl: 'Goedenacht, slaap lekker.',
             exampleEn: 'Good night, sleep well.',
           },
           {
             nl: 'tot ziens',
-            en: 'goodbye (formal)',
+            en: 'goodbye',
+            formality: 'formeel',
             audioId: 'tot-ziens',
             exampleNl: 'Tot ziens, fijne dag nog!',
             exampleEn: 'Goodbye, have a nice day!',
@@ -116,7 +102,8 @@ export const LES_01: Lesson = {
           },
           {
             nl: 'doei',
-            en: 'bye (informal)',
+            en: 'bye',
+            formality: 'informeel',
             audioId: 'doei',
             exampleNl: 'Doei, tot later!',
             exampleEn: 'Bye, see you later!',
