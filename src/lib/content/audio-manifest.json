@@ -1,1 +1,16 @@
-{}
+{
+  "a1-les-01": {
+    "hallo": "wav",
+    "hoi": "wav",
+    "dag": "wav",
+    "goedemorgen": "wav",
+    "goedemiddag": "wav",
+    "goedenavond": "wav",
+    "goedenacht": "wav",
+    "tot-ziens": "wav",
+    "tot-morgen": "wav",
+    "doei": "wav",
+    "spreken-hoi-hoe-gaat-het": "wav",
+    "spreken-tot-ziens-fijne-dag": "wav"
+  }
+}

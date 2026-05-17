@@ -129,9 +129,9 @@ Adding a lesson = edit a TS file → `pnpm audio:build` → commit. Runtime just
 
 Each step is independently shippable. Sized so half a step fits in an evening and still leaves time to study Dutch.
 
-- [ ] **Step 1 — Lesson runtime + Today home.** `/lessen` route, lesson list, lesson viewer that walks sections, progress in Dexie. **Home page = Today:** picks next unfinished lesson + shows one-line progress (`Les 3/20 · 12 woorden due`). No content yet — placeholder lesson. The home shape is set from day one. *(1 day)*
-- [ ] **Step 2 — Audio build script + manifest + `<AudioPlayer>` component.** Generate Les 1 audio as the smoke test. *(half day)*
-- [ ] **Step 3 — Section components: `uitleg` + `woorden` + `spreken`.** Author Les 1 fully. End-to-end vertical slice — proves the whole pattern works before scaling. *(1 day)*
+- [x] **Step 1 — Lesson runtime + Today home.** `/lessen` route, lesson list, lesson viewer that walks sections, progress in Dexie. **Home page = Today:** picks next unfinished lesson + shows one-line progress (`Les 3/20 · 12 woorden due`). No content yet — placeholder lesson. The home shape is set from day one. *(1 day)*
+- [x] **Step 2 — Audio build script + manifest + `<AudioPlayer>` component.** Generate Les 1 audio as the smoke test. Two providers wired up: ElevenLabs (paid, MP3) via `pnpm audio:build`, and macOS `say` (free, WAV) via `pnpm audio:build:say`. Manifest stores extension per file so both formats coexist. *(half day)*
+- [x] **Step 3 — Section components: `uitleg` + `woorden` + `spreken`.** Author Les 1 fully. End-to-end vertical slice — proves the whole pattern works before scaling. *(1 day)*
 - [ ] **Step 4 — `klanken` component.** Author Les 2 + Les 3. *(half day — mostly content)*
 - [ ] **Step 5 — `drill` + `de-het` + `conjugatie` components.** Author Les 5–8. *(1 day code + 1 day content)*
 - [ ] **Step 6 — `luisteren` + `mini-dialoog` components.** Author Les 6, 10, 13, 15, 16. *(1 day)*

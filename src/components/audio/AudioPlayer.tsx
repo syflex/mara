@@ -13,19 +13,33 @@ export default function AudioPlayer({ lessonId, audioId, label = 'Luister' }: Pr
   const available = hasAudio(lessonId, audioId);
   const ref = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const onPlay = () => setPlaying(true);
     const onStop = () => setPlaying(false);
+    const onError = () => {
+      const code = el.error?.code;
+      const map: Record<number, string> = {
+        1: 'aborted',
+        2: 'network error',
+        3: 'decode failed',
+        4: 'format not supported by browser',
+      };
+      setError(code ? map[code] ?? `error ${code}` : 'audio error');
+      setPlaying(false);
+    };
     el.addEventListener('play', onPlay);
     el.addEventListener('pause', onStop);
     el.addEventListener('ended', onStop);
+    el.addEventListener('error', onError);
     return () => {
       el.removeEventListener('play', onPlay);
       el.removeEventListener('pause', onStop);
       el.removeEventListener('ended', onStop);
+      el.removeEventListener('error', onError);
     };
   }, []);
 
@@ -34,16 +48,25 @@ export default function AudioPlayer({ lessonId, audioId, label = 'Luister' }: Pr
   function toggle() {
     const el = ref.current;
     if (!el) return;
+    setError(null);
     if (playing) {
       el.pause();
-    } else {
-      el.currentTime = 0;
-      void el.play().catch(() => setPlaying(false));
+      return;
     }
+    el.currentTime = 0;
+    el.play().catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : 'play blocked';
+      setError(msg);
+      setPlaying(false);
+      // Surface for debugging — the audio element fires its own 'error' for
+      // decode/network issues; this catch covers play() promise rejections
+      // (autoplay policy, user gesture missing, etc).
+      console.error(`AudioPlayer ${lessonId}/${audioId}:`, err);
+    });
   }
 
   return (
-    <>
+    <span className="inline-flex flex-col items-end gap-1">
       <button
         type="button"
         onClick={toggle}
@@ -55,9 +78,14 @@ export default function AudioPlayer({ lessonId, audioId, label = 'Luister' }: Pr
         aria-label={`${label} ${audioId}`}
       >
         <span aria-hidden>{playing ? '⏸' : '🔊'}</span>
-        <span>{label}</span>
+        {label && <span>{label}</span>}
       </button>
-      <audio ref={ref} src={audioUrl(lessonId, audioId)} preload="none" />
-    </>
+      {error && <span className="text-[10px] text-red-600">{error}</span>}
+      <audio
+        ref={ref}
+        src={audioUrl(lessonId, audioId)}
+        preload="metadata"
+      />
+    </span>
   );
 }

@@ -1,34 +1,40 @@
 /**
- * Generates MP3 audio for every (lessonId, audioId) declared in
- * src/lib/content/lessons via the ElevenLabs TTS API, writes files to
- * public/audio/{lessonId}/{audioId}.mp3, and updates audio-manifest.json.
+ * Generates .m4a (AAC) audio for every (lessonId, audioId) declared in the
+ * lessons, using the built-in macOS `say` command. No API key, no cost,
+ * works fully offline. Quality is OK but flatter than ElevenLabs.
  *
- * Idempotent: skips items already in the manifest AND already on disk.
+ * Requires macOS with a Dutch voice installed:
+ *   System Settings → Accessibility → Spoken Content → System Voice
+ *   → Manage Voices → Dutch (Netherlands) → Xander
  *
  * Usage:
- *   ELEVENLABS_API_KEY=sk_... pnpm audio:build
+ *   pnpm audio:build:say
  *
  * Optional env:
- *   ELEVENLABS_VOICE_ID    — default: Aria (free-tier default voice).
- *                            Run `pnpm audio:voices` to list voices your
- *                            account can actually use.
- *   ELEVENLABS_MODEL_ID    — default: eleven_multilingual_v2 (handles Dutch)
- *   AUDIO_BUILD_DRY_RUN=1  — log what would be generated; make no API calls
+ *   SAY_VOICE              — default: Xander (Dutch, NL). Try Ellen for BE.
+ *   SAY_RATE               — words per minute (default voice default — try 160
+ *                            for A0 pacing).
+ *   AUDIO_BUILD_DRY_RUN=1  — log what would be generated; no `say` calls.
  */
 
+import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { promisify } from 'node:util';
 import { LESSONS } from '../src/lib/content/lessons';
 import type { Lesson, LessonSection } from '../src/lib/types';
 
-const API_KEY = process.env.ELEVENLABS_API_KEY;
-// Aria — one of the free-tier default voices. Library/premade voices like
-// Rachel (21m00Tcm4TlvDq8ikWAM) now require a paid plan. Override via env
-// after running `pnpm audio:voices` to see what your account can use.
-const VOICE_ID = process.env.ELEVENLABS_VOICE_ID ?? '9BWtsMINqrJLrRacOk9x';
-const MODEL_ID = process.env.ELEVENLABS_MODEL_ID ?? 'eleven_multilingual_v2';
+const execFileP = promisify(execFile);
+
+const VOICE = process.env.SAY_VOICE ?? 'Xander';
+const RATE = process.env.SAY_RATE;
 const DRY_RUN = process.env.AUDIO_BUILD_DRY_RUN === '1';
+// WAV is the only audio format every browser plays without codec surprises.
+// 16-bit PCM mono at 22050Hz ≈ 44KB/sec — plenty for speech, ~5x larger
+// than AAC. Still tiny in absolute terms (a Les 1 build is ~600KB).
+const EXT = 'wav';
+const SAMPLE_RATE = '22050';
 
 const ROOT = process.cwd();
 const MANIFEST_PATH = join(ROOT, 'src/lib/content/audio-manifest.json');
@@ -76,29 +82,17 @@ function collectAudio(lesson: Lesson): AudioItem[] {
   return items;
 }
 
-async function tts(text: string): Promise<Buffer> {
-  const res = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`,
-    {
-      method: 'POST',
-      headers: {
-        'xi-api-key': API_KEY as string,
-        'Content-Type': 'application/json',
-        Accept: 'audio/mpeg',
-      },
-      body: JSON.stringify({
-        text,
-        model_id: MODEL_ID,
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-      }),
-    },
+async function ttsViaSay(text: string, outPath: string): Promise<void> {
+  const args: string[] = ['-v', VOICE];
+  if (RATE) args.push('-r', RATE);
+  args.push(
+    '--file-format=WAVE',
+    `--data-format=LEI16@${SAMPLE_RATE}`,
+    '-o',
+    outPath,
+    text,
   );
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`TTS failed (${res.status}): ${body.slice(0, 200)}`);
-  }
-  const buf = await res.arrayBuffer();
-  return Buffer.from(buf);
+  await execFileP('say', args);
 }
 
 async function loadManifest(): Promise<Manifest> {
@@ -114,16 +108,25 @@ async function saveManifest(m: Manifest): Promise<void> {
   await writeFile(MANIFEST_PATH, `${JSON.stringify(m, null, 2)}\n`);
 }
 
-async function main() {
-  if (!API_KEY && !DRY_RUN) {
-    console.error(
-      'Missing ELEVENLABS_API_KEY. Run with:\n' +
-        '  ELEVENLABS_API_KEY=sk_... pnpm audio:build\n' +
-        'Or do a dry run:\n' +
-        '  AUDIO_BUILD_DRY_RUN=1 pnpm audio:build',
-    );
-    process.exit(1);
+async function checkVoice(): Promise<void> {
+  try {
+    const { stdout } = await execFileP('say', ['-v', '?']);
+    if (!stdout.includes(VOICE)) {
+      console.error(
+        `Voice "${VOICE}" not installed. Install via System Settings →` +
+          ' Accessibility → Spoken Content → System Voice → Manage Voices,' +
+          ' or set SAY_VOICE to one that is installed.',
+      );
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error('`say` command failed — are you on macOS?');
+    throw err;
   }
+}
+
+async function main() {
+  if (!DRY_RUN) await checkVoice();
 
   const manifest = await loadManifest();
   let generated = 0;
@@ -136,7 +139,7 @@ async function main() {
     console.log(`\n${lesson.id} — ${items.length} audio item(s)`);
 
     for (const item of items) {
-      const outPath = join(AUDIO_DIR, lesson.id, `${item.audioId}.mp3`);
+      const outPath = join(AUDIO_DIR, lesson.id, `${item.audioId}.${EXT}`);
       const inManifest = !!manifest[lesson.id]?.[item.audioId];
       if (inManifest && existsSync(outPath)) {
         skipped++;
@@ -150,16 +153,13 @@ async function main() {
       }
 
       try {
-        const buf = await tts(item.text);
         await mkdir(dirname(outPath), { recursive: true });
-        await writeFile(outPath, buf);
+        await ttsViaSay(item.text, outPath);
         manifest[lesson.id] = {
           ...manifest[lesson.id],
-          [item.audioId]: 'mp3',
+          [item.audioId]: EXT,
         };
         generated++;
-        // Persist after every successful write so a mid-run failure
-        // doesn't lose progress already paid for.
         await saveManifest(manifest);
       } catch (err) {
         failed++;
@@ -170,7 +170,8 @@ async function main() {
   }
 
   console.log(
-    `\nDone. Generated ${generated}, skipped ${skipped}, failed ${failed}.`,
+    `\nDone. Generated ${generated}, skipped ${skipped}, failed ${failed}.` +
+      `\nVoice: ${VOICE}${RATE ? ` @ ${RATE} wpm` : ''}`,
   );
   if (failed > 0) process.exit(1);
 }

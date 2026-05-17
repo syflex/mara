@@ -80,12 +80,14 @@ function SpeakLineCard({
       rec.start();
       setState({ kind: 'recording' });
     } catch (e) {
+      const raw = e instanceof Error ? e.message : String(e);
+      const name = e instanceof Error ? e.name : '';
+      const denied = name === 'NotAllowedError' || /denied|notallowed/i.test(raw);
       setState({
         kind: 'error',
-        message:
-          e instanceof Error
-            ? e.message
-            : 'Microfoon niet beschikbaar',
+        message: denied
+          ? 'Microfoon geweigerd. Klik op het slotje in de adresbalk → Microfoon → toestaan. Op macOS ook: Systeeminstellingen → Privacy & Beveiliging → Microfoon → vink je browser aan.'
+          : `Microfoon niet beschikbaar: ${raw}`,
       });
     }
   }

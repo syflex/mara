@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "audio:build": "tsx scripts/build-audio.ts",
+    "audio:build:say": "tsx scripts/build-audio-say.ts",
     "audio:voices": "tsx scripts/list-voices.ts"
   },
   "dependencies": {

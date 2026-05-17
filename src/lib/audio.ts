@@ -1,6 +1,9 @@
 import manifest from './content/audio-manifest.json';
 
-type Manifest = Record<string, Record<string, true>>;
+// Manifest maps audioId → file extension (e.g. 'mp3', 'm4a'). The build
+// script that generated each file decides the format; the runtime just
+// needs to know which extension to fetch.
+type Manifest = Record<string, Record<string, string>>;
 
 const MANIFEST = manifest as Manifest;
 
@@ -9,5 +12,6 @@ export function hasAudio(lessonId: string, audioId: string): boolean {
 }
 
 export function audioUrl(lessonId: string, audioId: string): string {
-  return `/audio/${lessonId}/${audioId}.mp3`;
+  const ext = MANIFEST[lessonId]?.[audioId] ?? 'mp3';
+  return `/audio/${lessonId}/${audioId}.${ext}`;
 }
