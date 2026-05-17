@@ -7,6 +7,7 @@ import type {
   SpeakingPrompt,
   SpeakingAttempt,
   ExamSession,
+  LessonProgress,
 } from './types';
 
 export class DutchDB extends Dexie {
@@ -17,6 +18,7 @@ export class DutchDB extends Dexie {
   speakingPrompts!: Table<SpeakingPrompt, string>;
   speakingAttempts!: Table<SpeakingAttempt, string>;
   examSessions!: Table<ExamSession, string>;
+  lessonProgress!: Table<LessonProgress, string>;
 
   constructor() {
     super('dutch-app');
@@ -28,6 +30,9 @@ export class DutchDB extends Dexie {
       speakingPrompts: 'id, format, createdAt',
       speakingAttempts: 'id, promptId, recordedAt',
       examSessions: 'id, componentType, startedAt',
+    });
+    this.version(2).stores({
+      lessonProgress: 'lessonId, completedAt, updatedAt',
     });
   }
 }

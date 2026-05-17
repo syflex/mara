@@ -162,3 +162,41 @@ export const SRS_RATING = {
   GOOD: 3 as const,
   EASY: 4 as const,
 };
+
+export type SectionType =
+  | 'uitleg'
+  | 'klanken'
+  | 'woorden'
+  | 'de-het'
+  | 'conjugatie'
+  | 'drill'
+  | 'zinsbouw'
+  | 'luisteren'
+  | 'spreken'
+  | 'mini-dialoog'
+  | 'schrijven';
+
+export interface LessonSection {
+  id: string;
+  type: SectionType;
+  payload: unknown;
+}
+
+export interface Lesson {
+  id: string;
+  level: 'A0-A1';
+  order: number;
+  titleNl: string;
+  titleEn: string;
+  estimatedMinutes: number;
+  sections: LessonSection[];
+  prerequisites?: string[];
+}
+
+export interface LessonProgress {
+  lessonId: string;
+  startedAt: number;
+  completedAt?: number;
+  sectionIdsCompleted: string[];
+  updatedAt: number;
+}

@@ -40,14 +40,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <span className="font-semibold tracking-tight text-zinc-900">MARA</span>
             </Link>
             <nav className="flex gap-4 text-sm text-zinc-600">
-              <Link href="/knm" className="hover:text-zinc-900">
-                KNM
+              <Link href="/" className="hover:text-zinc-900">
+                Vandaag
+              </Link>
+              <Link href="/lessen" className="hover:text-zinc-900">
+                Lessen
               </Link>
               <Link href="/vocab" className="hover:text-zinc-900">
-                Vocab
-              </Link>
-              <Link href="/flashcards" className="hover:text-zinc-900">
-                Flashcards
+                Woordreview
               </Link>
             </nav>
           </div>

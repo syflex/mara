@@ -6,12 +6,12 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import { KNM_THEMES, SRS_RATING, type KnmQuestion, type SrsRating } from '@/lib/types';
 import { review, isDue } from '@/lib/srs';
-import { seedIfEmpty } from '@/lib/seed';
+import { seedKnmIfEmpty } from '@/lib/seed';
 
 export default function KnmPage() {
   const [seeded, setSeeded] = useState(false);
   useEffect(() => {
-    seedIfEmpty().then(() => setSeeded(true));
+    seedKnmIfEmpty().then(() => setSeeded(true));
   }, []);
 
   const all = useLiveQuery(() => db.knmQuestions.toArray(), [seeded]);
