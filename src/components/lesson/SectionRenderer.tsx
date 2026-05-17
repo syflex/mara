@@ -1,28 +1,26 @@
 'use client';
 
-import type { ComponentType } from 'react';
-import type { LessonSection, SectionType } from '@/lib/types';
+import type { LessonSection } from '@/lib/types';
 import PlaceholderSection from './PlaceholderSection';
+import UitlegSection from './sections/UitlegSection';
+import WoordenSection from './sections/WoordenSection';
+import SprekenSection from './sections/SprekenSection';
 
-export interface SectionComponentProps {
+export default function SectionRenderer({
+  section,
+  lessonId,
+}: {
   section: LessonSection;
-}
-
-const SECTION_COMPONENTS: Record<SectionType, ComponentType<SectionComponentProps>> = {
-  uitleg: PlaceholderSection,
-  klanken: PlaceholderSection,
-  woorden: PlaceholderSection,
-  'de-het': PlaceholderSection,
-  conjugatie: PlaceholderSection,
-  drill: PlaceholderSection,
-  zinsbouw: PlaceholderSection,
-  luisteren: PlaceholderSection,
-  spreken: PlaceholderSection,
-  'mini-dialoog': PlaceholderSection,
-  schrijven: PlaceholderSection,
-};
-
-export default function SectionRenderer({ section }: SectionComponentProps) {
-  const Component = SECTION_COMPONENTS[section.type] ?? PlaceholderSection;
-  return <Component section={section} />;
+  lessonId: string;
+}) {
+  switch (section.type) {
+    case 'uitleg':
+      return <UitlegSection payload={section.payload} />;
+    case 'woorden':
+      return <WoordenSection lessonId={lessonId} payload={section.payload} />;
+    case 'spreken':
+      return <SprekenSection lessonId={lessonId} payload={section.payload} />;
+    default:
+      return <PlaceholderSection section={section} />;
+  }
 }

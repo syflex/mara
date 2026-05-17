@@ -165,7 +165,7 @@ export default function LessonViewerPage({
                 Sectie {currentIndex + 1} van {totalSections}
               </span>
             </div>
-            <SectionRenderer section={section} />
+            <SectionRenderer section={section} lessonId={lessonId} />
           </div>
         )
       )}

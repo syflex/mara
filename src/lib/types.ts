@@ -176,11 +176,50 @@ export type SectionType =
   | 'mini-dialoog'
   | 'schrijven';
 
-export interface LessonSection {
-  id: string;
-  type: SectionType;
-  payload: unknown;
+export type UitlegBlock =
+  | { kind: 'heading'; text: string }
+  | { kind: 'paragraph'; text: string }
+  | { kind: 'list'; items: string[] };
+
+export interface UitlegPayload {
+  blocks: UitlegBlock[];
 }
+
+export interface Woord {
+  nl: string;
+  en: string;
+  gender?: 'de' | 'het';
+  audioId?: string;
+  exampleNl?: string;
+  exampleEn?: string;
+}
+
+export interface WoordenPayload {
+  intro?: string;
+  words: Woord[];
+}
+
+export interface SprekenLine {
+  id: string;
+  nl: string;
+  en?: string;
+  audioId?: string;
+}
+
+export interface SprekenPayload {
+  intro?: string;
+  lines: SprekenLine[];
+}
+
+export type LessonSection =
+  | { id: string; type: 'uitleg'; payload: UitlegPayload }
+  | { id: string; type: 'woorden'; payload: WoordenPayload }
+  | { id: string; type: 'spreken'; payload: SprekenPayload }
+  | {
+      id: string;
+      type: Exclude<SectionType, 'uitleg' | 'woorden' | 'spreken'>;
+      payload: unknown;
+    };
 
 export interface Lesson {
   id: string;

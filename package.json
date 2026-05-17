@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "audio:build": "tsx scripts/build-audio.ts",
+    "audio:voices": "tsx scripts/list-voices.ts"
   },
   "dependencies": {
     "dexie": "^4.4.2",
@@ -24,6 +26,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.0",
     "typescript": "^5"
   }
 }

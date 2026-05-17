@@ -9,6 +9,6 @@ export const LES_02: Lesson = {
   estimatedMinutes: 6,
   sections: [
     { id: 'klanken-1', type: 'klanken', payload: {} },
-    { id: 'woorden-1', type: 'woorden', payload: {} },
+    { id: 'woorden-1', type: 'woorden', payload: { words: [] } },
   ],
 };
