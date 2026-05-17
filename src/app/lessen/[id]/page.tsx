@@ -124,36 +124,12 @@ export default function LessonViewerPage({
       />
 
       {showCelebration ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-          <p className="text-sm font-medium text-emerald-900">
-            Les voltooid 🎉
-          </p>
-          <p className="mt-1 text-xs text-emerald-700">
-            Je kunt deze les altijd opnieuw bekijken.
-          </p>
-          <div className="mt-5 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/lessen"
-              className="rounded-md border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50"
-            >
-              Lessenpad
-            </Link>
-            <Link
-              href={`/lessen/${lesson.id}?review=1`}
-              className="rounded-md border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50"
-            >
-              Bekijk opnieuw
-            </Link>
-            {nextLesson && (
-              <Link
-                href={`/lessen/${nextLesson.id}`}
-                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-              >
-                Volgende les →
-              </Link>
-            )}
-          </div>
-        </div>
+        <CompletionCard
+          lessonOrder={lesson.order}
+          recap={recapCounts(lesson)}
+          reviewHref={`/lessen/${lesson.id}?review=1`}
+          nextHref={nextLesson ? `/lessen/${nextLesson.id}` : null}
+        />
       ) : (
         section && (
           <div>
@@ -201,6 +177,68 @@ export default function LessonViewerPage({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+interface RecapCounts {
+  words: number;
+  lines: number;
+}
+
+function recapCounts(lesson: { sections: import('@/lib/types').LessonSection[] }): RecapCounts {
+  let words = 0;
+  let lines = 0;
+  for (const s of lesson.sections) {
+    if (s.type === 'woorden') words += s.payload.words.length;
+    if (s.type === 'spreken') lines += s.payload.lines.length;
+  }
+  return { words, lines };
+}
+
+function recapText({ words, lines }: RecapCounts): string | null {
+  const parts: string[] = [];
+  if (words > 0) parts.push(`${words} ${words === 1 ? 'woord' : 'woorden'} geleerd`);
+  if (lines > 0) parts.push(`${lines} ${lines === 1 ? 'zin' : 'zinnen'} geoefend`);
+  return parts.length > 0 ? parts.join(' · ') : null;
+}
+
+function CompletionCard({
+  lessonOrder,
+  recap,
+  reviewHref,
+  nextHref,
+}: {
+  lessonOrder: number;
+  recap: RecapCounts;
+  reviewHref: string;
+  nextHref: string | null;
+}) {
+  const recapLine = recapText(recap);
+  return (
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+      <p className="text-base font-semibold text-emerald-900">
+        🎉 Les {lessonOrder} voltooid
+      </p>
+      {recapLine && (
+        <p className="mt-2 text-sm text-emerald-700">{recapLine}</p>
+      )}
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <Link
+          href={reviewHref}
+          className="rounded-md border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-50"
+        >
+          Bekijk opnieuw
+        </Link>
+        {nextHref && (
+          <Link
+            href={nextHref}
+            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          >
+            Volgende les →
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
