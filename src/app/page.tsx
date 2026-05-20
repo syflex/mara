@@ -11,22 +11,19 @@ import {
   nextUnfinishedLesson,
 } from '@/lib/lessons';
 import { dueSoonCount } from '@/lib/srs';
-import type { Lesson } from '@/lib/types';
-
-type Track = 'A0-A1' | 'A1-A2';
-
-const TRACKS: { id: Track; label: string }[] = [
-  { id: 'A0-A1', label: 'A0 → A1 Beginner' },
-  { id: 'A1-A2', label: 'A1 → A2 Inburgering' },
-];
+import { TRACKS, type Lesson, type TrackId } from '@/lib/types';
 
 export default function Home() {
-  const [track, setTrack] = useState<Track>('A0-A1');
+  const [track, setTrack] = useState<TrackId>('beginner');
 
   return (
     <div className="space-y-8">
       <TrackSwitcher track={track} onChange={setTrack} />
-      {track === 'A0-A1' ? <BeginnerTrack /> : <InburgeringTrack onBack={() => setTrack('A0-A1')} />}
+      {track === 'beginner' ? (
+        <BeginnerTrack />
+      ) : (
+        <InburgeringTrack onBack={() => setTrack('beginner')} />
+      )}
     </div>
   );
 }
@@ -35,8 +32,8 @@ function TrackSwitcher({
   track,
   onChange,
 }: {
-  track: Track;
-  onChange: (t: Track) => void;
+  track: TrackId;
+  onChange: (t: TrackId) => void;
 }) {
   return (
     <div

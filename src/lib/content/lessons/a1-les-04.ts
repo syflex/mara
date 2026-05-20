@@ -2,7 +2,8 @@ import type { Lesson } from '@/lib/types';
 
 export const LES_04: Lesson = {
   id: 'a1-les-04',
-  level: 'A0-A1',
+  track: 'beginner',
+  level: 'A0',
   order: 4,
   titleNl: 'Wonen — waar woon jij?',
   titleEn: 'Living — where do you live?',

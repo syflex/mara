@@ -2,7 +2,8 @@ import type { Lesson } from '@/lib/types';
 
 export const LES_06: Lesson = {
   id: 'a1-les-06',
-  level: 'A0-A1',
+  track: 'beginner',
+  level: 'A1',
   order: 6,
   titleNl: 'Voorwerpen — de en het',
   titleEn: 'Objects — de and het',

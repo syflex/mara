@@ -37,6 +37,13 @@ export type PartOfSpeech =
 
 export type Level = 'A0' | 'A1' | 'A2' | 'B1';
 
+export type TrackId = 'beginner' | 'inburgering';
+
+export const TRACKS: { id: TrackId; label: string; targetLevel: Level }[] = [
+  { id: 'beginner', label: 'Beginner Dutch', targetLevel: 'A1' },
+  { id: 'inburgering', label: 'Inburgering A2', targetLevel: 'A2' },
+];
+
 export type SrsCardState = 'new' | 'learning' | 'review' | 'relearning';
 
 export interface SrsState {
@@ -245,7 +252,8 @@ export type LessonSection =
 
 export interface Lesson {
   id: string;
-  level: 'A0-A1';
+  track: TrackId;
+  level: Level;
   order: number;
   titleNl: string;
   titleEn: string;
