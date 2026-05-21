@@ -200,6 +200,7 @@ export interface Woord {
   gender?: 'de' | 'het';
   formality?: 'informeel' | 'formeel';
   audioId?: string;
+  imageUrl?: string;
   exampleNl?: string;
   exampleEn?: string;
 }

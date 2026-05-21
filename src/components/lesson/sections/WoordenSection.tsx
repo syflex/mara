@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import type { WoordenPayload } from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
 
@@ -20,8 +21,17 @@ export default function WoordenSection({ lessonId, payload }: Props) {
             key={i}
             className="rounded-xl border border-zinc-200 bg-white p-4"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+            <div className="flex items-start gap-3">
+              {w.imageUrl && (
+                <Image
+                  src={w.imageUrl}
+                  alt={w.nl}
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 shrink-0 rounded-md bg-zinc-100 object-cover"
+                />
+              )}
+              <div className="min-w-0 flex-1">
                 <p className="text-base font-medium text-zinc-900">
                   {w.gender && (
                     <span className="mr-1 text-zinc-400">{w.gender}</span>
