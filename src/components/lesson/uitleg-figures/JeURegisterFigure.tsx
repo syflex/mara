@@ -8,31 +8,31 @@
  */
 export default function JeURegisterFigure() {
   return (
-    <figure className="rounded-lg border border-zinc-200 bg-gradient-to-br from-amber-50/40 via-white to-sky-50/40 p-4">
+    <figure className="rounded-lg border border-zinc-200 bg-gradient-to-br from-amber-50/40 via-white to-sky-50/40 p-4 dark:border-zinc-800 dark:from-amber-950/20 dark:via-zinc-900 dark:to-sky-950/20">
       <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-3 gap-y-3">
         <PersonIcon variant="je" />
         <div className="min-w-0">
-          <p className="text-sm font-medium text-zinc-900">
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
             vriend · familie · kind
           </p>
-          <p className="text-xs text-zinc-500">peer · leeftijdsgenoot</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">peer · leeftijdsgenoot</p>
         </div>
         <ArrowRight />
         <RegisterChip variant="je">je</RegisterChip>
 
         <PersonIcon variant="u" />
         <div className="min-w-0">
-          <p className="text-sm font-medium text-zinc-900">
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
             vreemde · dokter · gemeente
           </p>
-          <p className="text-xs text-zinc-500">stranger · ouder · zakelijk</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">stranger · ouder · zakelijk</p>
         </div>
         <ArrowRight />
         <RegisterChip variant="u">u</RegisterChip>
       </div>
-      <figcaption className="mt-3 border-t border-zinc-100 pt-2 text-xs italic text-zinc-500">
+      <figcaption className="mt-3 border-t border-zinc-100 pt-2 text-xs italic text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
         Bij twijfel?{' '}
-        <span className="font-medium not-italic text-sky-800">u</span> is altijd
+        <span className="font-medium not-italic text-sky-800 dark:text-sky-300">u</span> is altijd
         veilig.
       </figcaption>
     </figure>
@@ -42,8 +42,8 @@ export default function JeURegisterFigure() {
 function PersonIcon({ variant }: { variant: 'je' | 'u' }) {
   const ringBg =
     variant === 'je'
-      ? 'bg-amber-50 ring-amber-200 text-amber-700'
-      : 'bg-sky-50 ring-sky-200 text-sky-700';
+      ? 'bg-amber-50 ring-amber-200 text-amber-700 dark:bg-amber-950/40 dark:ring-amber-900/60 dark:text-amber-300'
+      : 'bg-sky-50 ring-sky-200 text-sky-700 dark:bg-sky-950/40 dark:ring-sky-900/60 dark:text-sky-300';
   return (
     <span
       className={`inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ${ringBg}`}
@@ -75,8 +75,8 @@ function RegisterChip({
 }) {
   const cls =
     variant === 'je'
-      ? 'bg-amber-100 text-amber-800'
-      : 'bg-sky-100 text-sky-800';
+      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-200'
+      : 'bg-sky-100 text-sky-800 dark:bg-sky-950/50 dark:text-sky-200';
   return (
     <span
       className={`inline-flex min-w-[2.25rem] items-center justify-center rounded-md px-2.5 py-1 text-sm font-semibold ${cls}`}
@@ -97,7 +97,7 @@ function ArrowRight() {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="text-zinc-400"
+      className="text-zinc-400 dark:text-zinc-600"
       aria-hidden="true"
     >
       <line x1="5" y1="12" x2="19" y2="12" />

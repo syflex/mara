@@ -24,7 +24,7 @@ export default function ReviewPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Review</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           Eén plek voor al je dagelijkse herhaling.
         </p>
       </header>
@@ -50,12 +50,12 @@ export default function ReviewPage() {
       {ready > 0 ? (
         <Link
           href="/vocab"
-          className="block rounded-md bg-orange-600 px-4 py-3 text-center text-sm font-medium text-white hover:bg-orange-700"
+          className="block rounded-xl bg-orange-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-orange-600/20 transition-colors hover:bg-orange-700"
         >
           Start review →
         </Link>
       ) : (
-        <p className="text-center text-xs text-zinc-500">
+        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
           {total === 0
             ? 'Voltooi een les om woorden toe te voegen.'
             : 'Alles bijgewerkt. Mooi werk.'}
@@ -76,16 +76,16 @@ function ReviewRow({
 }) {
   const body = (
     <div
-      className={`flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors ${
-        href ? 'hover:border-zinc-300 hover:bg-zinc-50' : 'opacity-60'
+      className={`flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-900/5 transition-colors dark:bg-zinc-900 dark:ring-white/5 ${
+        href ? 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60' : 'opacity-60'
       }`}
     >
       <div>
-        <p className="text-sm font-medium text-zinc-900">{title}</p>
-        <p className="mt-0.5 text-xs text-zinc-500">{subtitle}</p>
+        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{title}</p>
+        <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{subtitle}</p>
       </div>
       {href && (
-        <span className="text-sm text-zinc-400" aria-hidden>
+        <span className="text-sm text-zinc-400 dark:text-zinc-500" aria-hidden>
           →
         </span>
       )}

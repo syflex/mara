@@ -1,12 +1,9 @@
 'use client';
 
+import type { ComponentType } from 'react';
 import type { LessonSection } from '@/lib/types';
 import PlaceholderSection from './PlaceholderSection';
-import UitlegSection from './sections/UitlegSection';
-import WoordenSection from './sections/WoordenSection';
-import SprekenSection from './sections/SprekenSection';
-import KlankenSection from './sections/KlankenSection';
-import MiniDialoogSection from './sections/MiniDialoogSection';
+import { SECTION_REGISTRY } from './sections/registry';
 
 export default function SectionRenderer({
   section,
@@ -15,20 +12,17 @@ export default function SectionRenderer({
   section: LessonSection;
   lessonId: string;
 }) {
-  switch (section.type) {
-    case 'uitleg':
-      return <UitlegSection payload={section.payload} />;
-    case 'woorden':
-      return <WoordenSection lessonId={lessonId} payload={section.payload} />;
-    case 'spreken':
-      return <SprekenSection lessonId={lessonId} payload={section.payload} />;
-    case 'klanken':
-      return <KlankenSection lessonId={lessonId} payload={section.payload} />;
-    case 'mini-dialoog':
-      return (
-        <MiniDialoogSection lessonId={lessonId} payload={section.payload} />
-      );
-    default:
-      return <PlaceholderSection section={section} />;
+  const entry = SECTION_REGISTRY[section.type];
+  if (!entry.component) {
+    return <PlaceholderSection section={section} />;
   }
+  // The registry is typed `RegistryEntry<K>` per key; TS can't narrow that
+  // here from the dynamic `section.type` lookup, so the cast is contained
+  // to this one dispatch point. The compile-time guarantee is at the
+  // registry definition itself (component K accepts payload K).
+  const Component = entry.component as ComponentType<{
+    lessonId: string;
+    payload: typeof section.payload;
+  }>;
+  return <Component lessonId={lessonId} payload={section.payload} />;
 }

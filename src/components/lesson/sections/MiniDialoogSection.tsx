@@ -19,7 +19,7 @@ export default function MiniDialoogSection({ lessonId, payload }: Props) {
   return (
     <div className="space-y-4">
       {payload.intro && (
-        <p className="text-sm text-zinc-600">{payload.intro}</p>
+        <p className="px-1 text-sm text-zinc-600 dark:text-zinc-300">{payload.intro}</p>
       )}
       <div className="space-y-4">
         {payload.scenes.map((scene) => (
@@ -109,17 +109,17 @@ function Scene({
   const canPlayAll = playableIndices.length > 0;
 
   return (
-    <article className="rounded-xl border border-zinc-200 bg-white p-4">
+    <article className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
       <header className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="text-sm font-semibold text-zinc-900">
+            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               {scene.titleNl}
             </h3>
             <RegisterBadge register={scene.register} />
           </div>
           {scene.titleEn && (
-            <p className="mt-0.5 text-xs text-zinc-500">{scene.titleEn}</p>
+            <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{scene.titleEn}</p>
           )}
         </div>
         {canPlayAll && (
@@ -129,8 +129,8 @@ function Scene({
             aria-pressed={playing}
             className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1 ${
               playing
-                ? 'border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100'
-                : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50'
+                ? 'border-orange-300 bg-orange-50 text-orange-700 hover:bg-orange-100 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-300 dark:hover:bg-orange-950/60'
+                : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-700'
             }`}
           >
             {playing ? <PauseIcon /> : <PlayIcon />}
@@ -158,8 +158,8 @@ function RegisterBadge({ register }: { register: 'informeel' | 'formeel' }) {
     <span
       className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
         register === 'formeel'
-          ? 'bg-sky-50 text-sky-700'
-          : 'bg-amber-50 text-amber-700'
+          ? 'bg-sky-50 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300'
+          : 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300'
       }`}
     >
       {register}
@@ -180,17 +180,17 @@ function LineRow({
     <div
       className={`flex items-start gap-3 rounded-lg border p-3 transition-colors ${
         active
-          ? 'border-orange-300 bg-orange-50/60'
-          : 'border-zinc-100 bg-zinc-50/60'
+          ? 'border-orange-300 bg-orange-50/60 dark:border-orange-800 dark:bg-orange-950/30'
+          : 'border-zinc-100 bg-zinc-50/60 dark:border-zinc-800 dark:bg-zinc-800/40'
       }`}
     >
-      <span className="mt-0.5 inline-flex min-w-[3.5rem] shrink-0 items-center justify-center rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-zinc-600 ring-1 ring-zinc-200">
+      <span className="mt-0.5 inline-flex min-w-[3.5rem] shrink-0 items-center justify-center rounded-md bg-white px-2 py-0.5 text-[11px] font-medium text-zinc-600 ring-1 ring-zinc-200 dark:bg-zinc-900 dark:text-zinc-300 dark:ring-zinc-700">
         {line.speaker}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-sm text-zinc-900">{line.nl}</p>
+        <p className="text-sm text-zinc-900 dark:text-zinc-100">{line.nl}</p>
         {line.en && (
-          <p className="mt-0.5 text-xs text-zinc-500">{line.en}</p>
+          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{line.en}</p>
         )}
       </div>
       {line.audioId && (

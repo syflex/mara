@@ -53,6 +53,70 @@ export function indexProgress(
   return new Map((rows ?? []).map((p) => [p.lessonId, p]));
 }
 
+function dayKey(ts: number): string {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Consecutive days with at least one progress update, counting back from
+ * today. If today has no activity yet, the streak counts back from
+ * yesterday — so opening the app fresh in the morning doesn't show a
+ * broken streak. Two empty days in a row breaks it.
+ */
+export function computeStreakDays(
+  rows: LessonProgress[] | undefined,
+  now: Date = new Date(),
+): number {
+  if (!rows || rows.length === 0) return 0;
+  const activeDays = new Set(rows.map((p) => dayKey(p.updatedAt)));
+  const probe = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (!activeDays.has(dayKey(probe.getTime()))) {
+    probe.setDate(probe.getDate() - 1);
+    if (!activeDays.has(dayKey(probe.getTime()))) return 0;
+  }
+  let streak = 0;
+  while (activeDays.has(dayKey(probe.getTime()))) {
+    streak++;
+    probe.setDate(probe.getDate() - 1);
+  }
+  return streak;
+}
+
+/**
+ * Most recently active lessons, sorted by updatedAt descending. Used by
+ * the Vandaag "Recent" feed. Returns at most `limit` entries.
+ */
+export function recentLessons(
+  rows: LessonProgress[] | undefined,
+  limit = 3,
+): { lesson: Lesson; progress: LessonProgress }[] {
+  if (!rows || rows.length === 0) return [];
+  return [...rows]
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .map((p) => {
+      const lesson = LESSONS.find((l) => l.id === p.lessonId);
+      return lesson ? { lesson, progress: p } : null;
+    })
+    .filter((x): x is { lesson: Lesson; progress: LessonProgress } => x !== null)
+    .slice(0, limit);
+}
+
+/** "Vandaag", "Gisteren", "Eergisteren", "N dagen geleden". */
+export function relativeDayLabel(ts: number, now: Date = new Date()): string {
+  const then = new Date(ts);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const thenDay = new Date(then.getFullYear(), then.getMonth(), then.getDate());
+  const days = Math.round((today.getTime() - thenDay.getTime()) / 86_400_000);
+  if (days <= 0) return 'Vandaag';
+  if (days === 1) return 'Gisteren';
+  if (days === 2) return 'Eergisteren';
+  return `${days} dagen geleden`;
+}
+
 export async function ensureLessonStarted(lessonId: string): Promise<void> {
   const existing = await db.lessonProgress.get(lessonId);
   if (existing) return;

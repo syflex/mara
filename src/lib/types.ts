@@ -144,20 +144,123 @@ export interface MiniDialoogPayload {
   scenes: MiniDialoogScene[];
 }
 
-export type LessonSection =
-  | { id: string; type: 'uitleg'; payload: UitlegPayload }
-  | { id: string; type: 'woorden'; payload: WoordenPayload }
-  | { id: string; type: 'spreken'; payload: SprekenPayload }
-  | { id: string; type: 'klanken'; payload: KlankenPayload }
-  | { id: string; type: 'mini-dialoog'; payload: MiniDialoogPayload }
+// --- Payload shapes for the section types not yet implemented as components.
+// These exist so lesson data is typecheckable in advance of the component
+// build. Refine as each section is implemented.
+
+export interface DeHetItem {
+  nl: string;
+  gender: 'de' | 'het';
+  en?: string;
+}
+
+export interface DeHetPayload {
+  intro?: string;
+  items: DeHetItem[];
+}
+
+export interface ConjugatieItem {
+  pronoun: string; // "ik", "jij/je", "u", "hij/zij/het", "wij", "jullie", "zij"
+  expected: string; // "ben", "bent", "is", …
+  hint?: string;
+}
+
+export interface ConjugatiePayload {
+  intro?: string;
+  infinitive: string; // "zijn", "hebben"
+  items: ConjugatieItem[];
+}
+
+export type DrillItem =
   | {
-      id: string;
-      type: Exclude<
-        SectionType,
-        'uitleg' | 'woorden' | 'spreken' | 'klanken' | 'mini-dialoog'
-      >;
-      payload: unknown;
+      kind: 'mc';
+      promptNl: string;
+      promptEn?: string;
+      choices: { text: string; correct: boolean }[];
+    }
+  | {
+      kind: 'typed';
+      promptNl: string;
+      promptEn?: string;
+      expected: string;
+      acceptVariants?: string[];
     };
+
+export interface DrillPayload {
+  intro?: string;
+  items: DrillItem[];
+}
+
+export interface ZinsbouwItem {
+  promptEn: string;
+  tiles: string[];
+  expected: string;
+  acceptVariants?: string[];
+}
+
+export interface ZinsbouwPayload {
+  intro?: string;
+  items: ZinsbouwItem[];
+}
+
+export interface LuisterenQuestion {
+  questionNl: string;
+  questionEn?: string;
+  choices?: string[];
+  correctIndex?: number; // for MC
+  expected?: string; // for typed
+}
+
+export interface LuisterenPayload {
+  intro?: string;
+  audioId: string; // audio clip for this section
+  transcriptNl: string;
+  transcriptEn?: string;
+  questions: LuisterenQuestion[];
+}
+
+export interface SchrijvenItem {
+  promptEn: string;
+  expected: string;
+  acceptVariants?: string[];
+  hint?: string;
+}
+
+export interface SchrijvenPayload {
+  intro?: string;
+  items: SchrijvenItem[];
+}
+
+// --- Single source of truth: payloads keyed by section type. SectionType and
+// LessonSection are derived from this; the section registry validates that
+// each key has a component (or is explicitly marked unimplemented).
+
+export interface SectionPayloadMap {
+  uitleg: UitlegPayload;
+  klanken: KlankenPayload;
+  woorden: WoordenPayload;
+  'de-het': DeHetPayload;
+  conjugatie: ConjugatiePayload;
+  drill: DrillPayload;
+  zinsbouw: ZinsbouwPayload;
+  luisteren: LuisterenPayload;
+  spreken: SprekenPayload;
+  'mini-dialoog': MiniDialoogPayload;
+  schrijven: SchrijvenPayload;
+}
+
+export type SectionType = keyof SectionPayloadMap;
+
+export type LessonSection = {
+  [K in SectionType]: { id: string; type: K; payload: SectionPayloadMap[K] };
+}[SectionType];
+
+// Props every section component receives. K narrows `payload` to the right
+// shape — components write `SectionProps<'woorden'>` and get full type safety.
+export interface SectionProps<K extends SectionType> {
+  lessonId: string;
+  payload: SectionPayloadMap[K];
+}
 
 export interface Lesson {
   id: string;

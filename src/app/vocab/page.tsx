@@ -40,7 +40,7 @@ export default function WoordreviewPage() {
   const [cardKey, setCardKey] = useState(0);
 
   if (!all) {
-    return <p className="text-sm text-zinc-500">Laden…</p>;
+    return <p className="text-sm text-zinc-500 dark:text-zinc-400">Laden…</p>;
   }
 
   if (all.length === 0) {
@@ -63,7 +63,7 @@ export default function WoordreviewPage() {
     <div className="space-y-6">
       <header className="flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Woordreview</h1>
-        <span className="text-sm text-zinc-500">
+        <span className="text-sm text-zinc-500 dark:text-zinc-400">
           {queue.length} in de wachtrij · {all.length} totaal
         </span>
       </header>
@@ -77,7 +77,7 @@ export default function WoordreviewPage() {
 
       {revealed && (
         <div>
-          <p className="mb-2 text-xs text-zinc-500">
+          <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
             Hoe goed wist je dit? Dit bepaalt wanneer je het woord weer ziet.
           </p>
           <div className="grid grid-cols-4 gap-2">
@@ -119,7 +119,7 @@ function VocabCardView({
 }) {
   const hasAudio = card.lessonId && card.audioId;
   return (
-    <div className="relative rounded-2xl border border-zinc-200 bg-white p-10 text-center">
+    <div className="relative rounded-3xl bg-white p-10 text-center shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
       {hasAudio && (
         <div className="absolute right-4 top-4">
           <AudioPlayer
@@ -130,21 +130,21 @@ function VocabCardView({
         </div>
       )}
 
-      <p className="text-2xl font-semibold tracking-tight text-zinc-900">
+      <p className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
         {card.gender && <ArticleChip gender={card.gender} />}
         {card.dutch}
       </p>
 
       {revealed ? (
         <>
-          <p className="mt-3 text-base text-zinc-600">{card.english}</p>
+          <p className="mt-3 text-base text-zinc-600 dark:text-zinc-300">{card.english}</p>
           {card.exampleNl && (
-            <div className="mt-6 border-t border-zinc-100 pt-4">
-              <p className="text-sm italic text-zinc-700">
+            <div className="mt-6 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+              <p className="text-sm italic text-zinc-700 dark:text-zinc-300">
                 &ldquo;{card.exampleNl}&rdquo;
               </p>
               {card.exampleEn && (
-                <p className="mt-1 text-xs text-zinc-500">{card.exampleEn}</p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{card.exampleEn}</p>
               )}
             </div>
           )}
@@ -153,7 +153,7 @@ function VocabCardView({
         <button
           type="button"
           onClick={onReveal}
-          className="mt-6 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+          className="mt-6 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
         >
           Toon antwoord
         </button>
@@ -192,34 +192,34 @@ function EmptyState({
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold tracking-tight">Woordreview</h1>
-      <div className="rounded-xl border border-zinc-200 bg-white p-8 text-center">
+      <div className="rounded-2xl bg-white p-8 text-center shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
         {reason === 'empty' ? (
           <>
-            <p className="text-sm text-zinc-700">
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Nog geen woorden om te reviewen.
             </p>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               Voltooi een les om woorden hier toe te voegen.
             </p>
             <Link
               href="/lessen"
-              className="mt-5 inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700"
+              className="mt-5 inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700"
             >
               Naar lessen
             </Link>
           </>
         ) : (
           <>
-            <p className="text-sm text-zinc-700">
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
               Geen woorden klaar voor nu — goed bezig.
             </p>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               {totalCount} {totalCount === 1 ? 'woord' : 'woorden'} in je
               wachtrij. Kom later terug.
             </p>
             <Link
               href="/"
-              className="mt-5 inline-block rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+              className="mt-5 inline-block rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
             >
               ← Terug naar Vandaag
             </Link>

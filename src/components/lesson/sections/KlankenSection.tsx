@@ -18,7 +18,9 @@ export default function KlankenSection({ lessonId, payload }: Props) {
   return (
     <div className="space-y-4">
       {payload.intro && (
-        <p className="text-sm text-zinc-600">{payload.intro}</p>
+        <p className="px-1 text-sm text-zinc-600 dark:text-zinc-300">
+          {payload.intro}
+        </p>
       )}
 
       <div className="flex flex-wrap gap-2">
@@ -31,8 +33,8 @@ export default function KlankenSection({ lessonId, payload }: Props) {
               onClick={() => setSelectedId(s.id)}
               className={`rounded-lg border px-4 py-2 text-base font-semibold transition-colors ${
                 active
-                  ? 'border-orange-300 bg-orange-50 text-orange-800'
-                  : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50'
+                  ? 'border-orange-300 bg-orange-50 text-orange-800 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-200'
+                  : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800'
               }`}
               aria-pressed={active}
             >
@@ -55,13 +57,15 @@ function KlankDetail({
   sound: KlankSound;
 }) {
   return (
-    <article className="rounded-xl border border-zinc-200 bg-white p-5">
+    <article className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-lg font-semibold tracking-tight text-zinc-900">
+        <p className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
           {sound.display}
         </p>
         {sound.hint && (
-          <p className="text-xs italic text-zinc-500">{sound.hint}</p>
+          <p className="text-xs italic text-zinc-500 dark:text-zinc-400">
+            {sound.hint}
+          </p>
         )}
       </div>
 
@@ -69,11 +73,15 @@ function KlankDetail({
         {sound.examples.map((ex, i) => (
           <li
             key={i}
-            className="flex items-center justify-between gap-3 rounded-md border border-zinc-100 bg-zinc-50/50 px-3 py-2"
+            className="flex items-center justify-between gap-3 rounded-md border border-zinc-100 bg-zinc-50/50 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-800/40"
           >
             <div className="min-w-0">
-              <p className="text-sm font-medium text-zinc-900">{ex.nl}</p>
-              {ex.en && <p className="text-xs text-zinc-500">{ex.en}</p>}
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {ex.nl}
+              </p>
+              {ex.en && (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">{ex.en}</p>
+              )}
             </div>
             {ex.audioId && (
               <AudioPlayer

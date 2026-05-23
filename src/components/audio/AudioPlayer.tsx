@@ -97,7 +97,7 @@ export default function AudioPlayer({
 
   return (
     <span className="inline-flex flex-col items-end gap-1">
-      <span className="inline-flex divide-x divide-zinc-200 overflow-hidden rounded-md border border-zinc-200 bg-white">
+      <span className="inline-flex divide-x divide-zinc-200 overflow-hidden rounded-md border border-zinc-200 bg-white dark:divide-zinc-700 dark:border-zinc-700 dark:bg-zinc-800">
         <RateButton
           playing={activeRate === NORMAL_RATE}
           onClick={() => play(NORMAL_RATE)}
@@ -148,8 +148,8 @@ function RateButton({
       {...rest}
       className={`inline-flex h-8 w-8 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:-outline-offset-1 ${
         playing
-          ? 'bg-orange-50 text-orange-700 hover:bg-orange-100'
-          : 'text-zinc-700 hover:bg-zinc-50'
+          ? 'bg-orange-50 text-orange-700 hover:bg-orange-100 dark:bg-orange-950/50 dark:text-orange-300 dark:hover:bg-orange-950/70'
+          : 'text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-zinc-700'
       }`}
     >
       {children}

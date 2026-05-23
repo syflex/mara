@@ -1,23 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import {
   backfillLessonVocab,
   completionStats,
+  computeStreakDays,
   indexProgress,
   nextUnfinishedLesson,
+  recentLessons,
+  relativeDayLabel,
 } from '@/lib/lessons';
 import { dueSoonCount } from '@/lib/srs';
-import { TRACKS, type Lesson, type TrackId } from '@/lib/types';
+import { useTodayMinutes } from '@/lib/activity';
+import { ACTIVITY } from '@/lib/config';
+import { TRACKS, type Lesson, type TrackId, type VocabCard } from '@/lib/types';
 
 export default function Home() {
   const [track, setTrack] = useState<TrackId>('beginner');
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <TrackSwitcher track={track} onChange={setTrack} />
       {track === 'beginner' ? (
         <BeginnerTrack />
@@ -39,7 +44,7 @@ function TrackSwitcher({
     <div
       role="tablist"
       aria-label="Leerroute"
-      className="inline-flex gap-1 rounded-lg bg-zinc-100 p-1"
+      className="inline-flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-900"
     >
       {TRACKS.map((t) => {
         const active = t.id === track;
@@ -52,8 +57,8 @@ function TrackSwitcher({
             onClick={() => onChange(t.id)}
             className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
               active
-                ? 'bg-white font-medium text-zinc-900 shadow-sm'
-                : 'text-zinc-600 hover:text-zinc-900'
+                ? 'bg-white font-medium text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-50'
+                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
             }`}
           >
             {t.label}
@@ -74,20 +79,35 @@ function BeginnerTrack() {
     () => db.vocab.where('source').equals('lesson').toArray(),
     [],
   );
+  const todayMinutes = useTodayMinutes();
 
   const progressByLesson = indexProgress(progressRows);
   const { completed, total } = completionStats(progressByLesson);
   const next = nextUnfinishedLesson(progressByLesson);
+  const streakDays = computeStreakDays(progressRows);
+  const recent = recentLessons(progressRows, 3);
   const vocabStats = vocab ? dueSoonCount(vocab) : null;
+  const masteredCount = vocab ? countMastered(vocab) : 0;
+  const reviewCount = vocabStats ? vocabStats.due + vocabStats.newCount : 0;
+
+  const dateLabel = useDateLabel();
+  const greeting = useGreeting();
 
   return (
-    <div className="space-y-8">
-      <header className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Vandaag</h1>
-        <span className="text-sm text-zinc-500">
-          Les {completed}/{total}
-        </span>
+    <div className="space-y-5">
+      <header className="px-1">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{dateLabel}</p>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight">{greeting}</h1>
       </header>
+
+      <RingsCard
+        lessonsDone={completed}
+        lessonsTotal={total}
+        minutesToday={todayMinutes}
+        minutesGoal={ACTIVITY.goalMinutes}
+        wordsMastered={masteredCount}
+        wordsTotal={vocab?.length ?? 0}
+      />
 
       {next ? (
         <NextLessonCard lesson={next} isFirst={completed === 0} />
@@ -95,52 +115,355 @@ function BeginnerTrack() {
         <AllDoneCard />
       )}
 
-      {vocabStats && vocabStats.due + vocabStats.newCount > 0 && (
-        <ReviewCta count={vocabStats.due + vocabStats.newCount} />
-      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <ReviewCard count={reviewCount} total={vocab?.length ?? 0} />
+        <StreakCard days={streakDays} minutesToday={todayMinutes} />
+      </div>
 
-      <section className="space-y-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-          Meer
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <SecondaryCard
-            href="/lessen"
-            title="Alle lessen"
-            subtitle={`${total} ${total === 1 ? 'les' : 'lessen'}`}
+      {recent.length > 0 && <RecentCard recent={recent} />}
+    </div>
+  );
+}
+
+// Date and greeting are derived from `new Date()` — external state from
+// React's perspective. useSyncExternalStore gives a clean server/client
+// split: server snapshot is the placeholder, client snapshot reads the
+// real clock on first render after hydration. Subscribe is a no-op
+// since the value is stable enough for a single session.
+const noopSubscribe = () => () => {};
+
+function useDateLabel(): string {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () =>
+      new Intl.DateTimeFormat('nl-NL', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      }).format(new Date()),
+    () => '',
+  );
+}
+
+function useGreeting(): string {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => {
+      const h = new Date().getHours();
+      return h < 6
+        ? 'Goedenacht'
+        : h < 12
+          ? 'Goedemorgen'
+          : h < 18
+            ? 'Goedemiddag'
+            : 'Goedenavond';
+    },
+    () => 'Vandaag',
+  );
+}
+
+function countMastered(vocab: VocabCard[]): number {
+  // "Mastered" = the card has graduated to review state. A simple, honest
+  // proxy until we add stricter criteria (e.g. multiple consecutive 'good's).
+  return vocab.filter((v) => v.srs.state === 'review').length;
+}
+
+interface RingProps {
+  label: string;
+  value: number;
+  total: number;
+  stroke: string;
+  trackLight: string;
+  trackDark: string;
+  display: string;
+  sub?: string;
+}
+
+function Ring({ label, value, total, stroke, trackLight, trackDark, display, sub }: RingProps) {
+  const fraction = total > 0 ? Math.min(Math.max(value / total, 0), 1) : 0;
+  const radius = 38;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - fraction);
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span className="relative inline-flex h-24 w-24 items-center justify-center">
+        <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90">
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke={trackLight}
+            strokeWidth="9"
+            className="dark:hidden"
           />
-          <SecondaryCard
-            href="/review"
-            title="Review"
-            subtitle={
-              !vocabStats || vocabStats.total === 0
-                ? 'Komt na voltooide lessen'
-                : `${vocabStats.due + vocabStats.newCount} klaar · ${vocabStats.total} woorden`
-            }
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke={trackDark}
+            strokeWidth="9"
+            className="hidden dark:block"
           />
+          <circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke={stroke}
+            strokeWidth="9"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            style={{ transition: 'stroke-dashoffset 600ms ease-out' }}
+          />
+        </svg>
+        <span className="relative text-sm font-semibold tabular-nums">{display}</span>
+      </span>
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+        {label}
+      </span>
+      {sub && (
+        <span className="text-[10px] text-zinc-400 dark:text-zinc-500">{sub}</span>
+      )}
+    </div>
+  );
+}
+
+function RingsCard({
+  lessonsDone,
+  lessonsTotal,
+  minutesToday,
+  minutesGoal,
+  wordsMastered,
+  wordsTotal,
+}: {
+  lessonsDone: number;
+  lessonsTotal: number;
+  minutesToday: number;
+  minutesGoal: number;
+  wordsMastered: number;
+  wordsTotal: number;
+}) {
+  return (
+    <section className="grid grid-cols-3 gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+      <Ring
+        label="Lessen"
+        value={lessonsDone}
+        total={lessonsTotal}
+        stroke="#ea580c"
+        trackLight="#fed7aa"
+        trackDark="rgba(234,88,12,0.18)"
+        display={`${lessonsDone}/${lessonsTotal}`}
+      />
+      <Ring
+        label="Vandaag"
+        value={minutesToday}
+        total={minutesGoal}
+        stroke="#10b981"
+        trackLight="#a7f3d0"
+        trackDark="rgba(16,185,129,0.18)"
+        display={`${minutesToday}m`}
+        sub={`van ${minutesGoal}m`}
+      />
+      <Ring
+        label="Woorden"
+        value={wordsMastered}
+        total={wordsTotal}
+        stroke="#6366f1"
+        trackLight="#c7d2fe"
+        trackDark="rgba(99,102,241,0.18)"
+        display={wordsTotal === 0 ? '—' : `${wordsMastered}`}
+        sub={wordsTotal === 0 ? undefined : `van ${wordsTotal}`}
+      />
+    </section>
+  );
+}
+
+function NextLessonCard({ lesson, isFirst }: { lesson: Lesson; isFirst: boolean }) {
+  return (
+    <section className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+      <div className="border-b border-zinc-100 px-6 py-3 dark:border-zinc-800">
+        <p className="text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+          {isFirst ? 'Begin hier' : 'Volgende les'}
+        </p>
+      </div>
+      <Link
+        href={`/lessen/${lesson.id}`}
+        className="flex items-start gap-4 px-6 py-5 transition-colors hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40"
+      >
+        <span className="grid h-14 w-14 shrink-0 place-content-center rounded-2xl bg-orange-100 font-serif text-2xl font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">
+          {lesson.order}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold leading-snug">{lesson.titleNl}</h2>
+          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+            {lesson.titleEn}
+          </p>
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            ~{lesson.estimatedMinutes} min · {lesson.sections.length} secties
+            {lesson.coverage.length > 0 && (
+              <span> · {lesson.coverage.join(', ')}</span>
+            )}
+          </p>
         </div>
-      </section>
+      </Link>
+      <div className="border-t border-zinc-100 px-6 py-3 dark:border-zinc-800">
+        <Link
+          href={`/lessen/${lesson.id}`}
+          className="block w-full rounded-xl bg-orange-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-700"
+        >
+          {isFirst ? 'Beginnen →' : 'Doorgaan →'}
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function ReviewCard({ count, total }: { count: number; total: number }) {
+  if (total === 0) {
+    return (
+      <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+          Review
+        </p>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          Komt na voltooide lessen
+        </p>
+      </div>
+    );
+  }
+  const hasWork = count > 0;
+  return (
+    <Link
+      href="/review"
+      className={`rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 transition-shadow hover:shadow-md dark:bg-zinc-900 dark:ring-white/5 ${
+        hasWork ? '' : 'opacity-70'
+      }`}
+    >
+      <p className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+        Review
+      </p>
+      <p className="mt-2 text-2xl font-semibold tabular-nums">{count}</p>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {hasWork
+          ? `woorden klaar van ${total}`
+          : `niets klaar · ${total} woorden`}
+      </p>
+    </Link>
+  );
+}
+
+function StreakCard({
+  days,
+  minutesToday,
+}: {
+  days: number;
+  minutesToday: number;
+}) {
+  const subtitle = useMemo(() => {
+    if (days === 0) return 'Begin vandaag';
+    if (minutesToday === 0) return 'Houd je streak vast — open een les';
+    return `${minutesToday}m vandaag`;
+  }, [days, minutesToday]);
+
+  return (
+    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          Streak
+        </p>
+        <FlameIcon active={days > 0} />
+      </div>
+      <p className="mt-2 text-2xl font-semibold tabular-nums">{days}</p>
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        {days === 1 ? 'dag' : 'dagen'} · {subtitle}
+      </p>
+    </div>
+  );
+}
+
+function RecentCard({
+  recent,
+}: {
+  recent: { lesson: Lesson; progress: import('@/lib/types').LessonProgress }[];
+}) {
+  return (
+    <section className="rounded-3xl bg-white p-2 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+      <h3 className="px-4 pt-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">
+        Recent
+      </h3>
+      <ul className="mt-1 divide-y divide-zinc-100 dark:divide-zinc-800">
+        {recent.map(({ lesson, progress }) => {
+          const done = !!progress.completedAt;
+          return (
+            <li key={lesson.id}>
+              <Link
+                href={`/lessen/${lesson.id}${done ? '?review=1' : ''}`}
+                className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+              >
+                <span
+                  className={`grid h-9 w-9 shrink-0 place-content-center rounded-full text-xs font-semibold ${
+                    done
+                      ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
+                      : 'bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400'
+                  }`}
+                >
+                  {lesson.order}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium">{lesson.titleNl}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {relativeDayLabel(progress.updatedAt)}
+                  </p>
+                </div>
+                {done ? (
+                  <CheckIcon />
+                ) : (
+                  <span className="text-xs text-orange-600 dark:text-orange-400">
+                    bezig
+                  </span>
+                )}
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function AllDoneCard() {
+  return (
+    <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 dark:border-emerald-900/50 dark:bg-emerald-950/30">
+      <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+        Alle lessen voltooid
+      </p>
+      <p className="mt-2 text-base text-emerald-900 dark:text-emerald-200">
+        Mooi werk. Tijd om door te gaan naar A1 → A2.
+      </p>
     </div>
   );
 }
 
 function InburgeringTrack({ onBack }: { onBack: () => void }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white p-8 text-center">
-      <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
+    <div className="rounded-3xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900">
+      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
         A1 → A2 Inburgering
       </p>
-      <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-900">
+      <h2 className="mt-2 text-xl font-semibold tracking-tight">
         Beschikbaar later
       </h2>
-      <p className="mx-auto mt-3 max-w-sm text-sm text-zinc-500">
+      <p className="mx-auto mt-3 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
         KNM, examenwoorden, mock-examen en spreekoefeningen komen hier zodra je
         de A0 → A1 basis afrondt.
       </p>
       <button
         type="button"
         onClick={onBack}
-        className="mt-6 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+        className="mt-6 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
       >
         ← Begin met A0 → A1
       </button>
@@ -148,83 +471,36 @@ function InburgeringTrack({ onBack }: { onBack: () => void }) {
   );
 }
 
-function NextLessonCard({ lesson, isFirst }: { lesson: Lesson; isFirst: boolean }) {
+function FlameIcon({ active }: { active: boolean }) {
   return (
-    <Link
-      href={`/lessen/${lesson.id}`}
-      className="block rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="currentColor"
+      className={active ? 'text-amber-500' : 'text-zinc-300 dark:text-zinc-700'}
+      aria-hidden
     >
-      <p className="text-xs font-medium uppercase tracking-wider text-orange-600">
-        {isFirst ? 'Begin hier' : 'Volgende les'}
-      </p>
-      <h2 className="mt-2 text-xl font-semibold tracking-tight text-zinc-900">
-        Les {lesson.order}: {lesson.titleNl}
-      </h2>
-      <p className="mt-1 text-sm text-zinc-500">{lesson.titleEn}</p>
-      <div className="mt-5 flex items-center justify-between">
-        <span className="text-xs text-zinc-500">
-          ~{lesson.estimatedMinutes} min · {lesson.sections.length} secties
-        </span>
-        <span className="rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white">
-          {isFirst ? 'Beginnen →' : 'Doorgaan →'}
-        </span>
-      </div>
-    </Link>
+      <path d="M12 2c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4-1 4 2 4 2 2 0-3-1-5 1-8z" />
+    </svg>
   );
 }
 
-function ReviewCta({ count }: { count: number }) {
+function CheckIcon() {
   return (
-    <Link
-      href="/review"
-      className="block rounded-2xl border border-zinc-200 bg-white p-5 transition-shadow hover:shadow-sm"
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-emerald-500"
+      aria-hidden
     >
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-zinc-500">
-            Review
-          </p>
-          <p className="mt-1 text-base font-medium text-zinc-900">
-            {count} {count === 1 ? 'woord' : 'woorden'} klaar
-          </p>
-        </div>
-        <span className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700">
-          Start review →
-        </span>
-      </div>
-    </Link>
-  );
-}
-
-function AllDoneCard() {
-  return (
-    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-      <p className="text-xs font-medium uppercase tracking-wider text-emerald-700">
-        Alle lessen voltooid
-      </p>
-      <p className="mt-2 text-base text-emerald-900">
-        Mooi werk. Tijd om door te gaan naar A1 → A2.
-      </p>
-    </div>
-  );
-}
-
-function SecondaryCard({
-  href,
-  title,
-  subtitle,
-}: {
-  href: string;
-  title: string;
-  subtitle: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="rounded-lg border border-zinc-200 bg-white px-4 py-3 transition-colors hover:border-zinc-300 hover:bg-zinc-50"
-    >
-      <p className="text-sm font-medium text-zinc-900">{title}</p>
-      <p className="mt-0.5 text-xs text-zinc-500">{subtitle}</p>
-    </Link>
+      <path d="M5 12.5l5 5L20 7" />
+    </svg>
   );
 }

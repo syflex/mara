@@ -21,7 +21,7 @@ export default function LessonPathPage() {
     <div className="space-y-6">
       <header className="flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Lessen</h1>
-        <span className="text-sm text-zinc-500">
+        <span className="text-sm text-zinc-500 dark:text-zinc-400">
           {completed}/{total} voltooid
         </span>
       </header>
@@ -63,31 +63,31 @@ function LessonRow({
 
   const body = (
     <div
-      className={`flex items-center justify-between rounded-lg border bg-white px-4 py-3 transition-colors ${
+      className={`flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-900/5 transition-colors dark:bg-zinc-900 dark:ring-white/5 ${
         unlocked
-          ? 'border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
-          : 'border-zinc-200 opacity-60'
+          ? 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60'
+          : 'opacity-60'
       }`}
     >
       <div className="flex items-center gap-3">
         <span
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-medium ${
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
             done
-              ? 'bg-emerald-100 text-emerald-700'
+              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400'
               : inProgress
-                ? 'bg-orange-100 text-orange-700'
+                ? 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400'
                 : unlocked
-                  ? 'bg-zinc-100 text-zinc-600'
-                  : 'bg-zinc-100 text-zinc-400'
+                  ? 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
+                  : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500'
           }`}
         >
           {done ? '✓' : lesson.order}
         </span>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-zinc-900">
+          <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
             {lesson.titleNl}
           </p>
-          <p className="truncate text-xs text-zinc-500">
+          <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
             {done
               ? 'Voltooid'
               : inProgress
@@ -99,7 +99,7 @@ function LessonRow({
         </div>
       </div>
       {unlocked && (
-        <span className="text-sm text-zinc-400" aria-hidden>
+        <span className="text-sm text-zinc-400 dark:text-zinc-500" aria-hidden>
           →
         </span>
       )}

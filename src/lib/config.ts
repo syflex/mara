@@ -37,3 +37,17 @@ export const MINI_DIALOOG = {
    */
   lineGapMs: 400,
 } as const;
+
+export const ACTIVITY = {
+  /**
+   * Daily minutes goal — the Vandaag rings fill against this. Matches the
+   * "30 min/day" budget the app is designed around.
+   */
+  goalMinutes: 30,
+  /**
+   * How often the activity tracker ticks while a lesson is open. Each tick
+   * adds the elapsed seconds since the last tick to today's total. Short
+   * enough that backgrounding/closing the tab loses at most this much.
+   */
+  tickMs: 5_000,
+} as const;

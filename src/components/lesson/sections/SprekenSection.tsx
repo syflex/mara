@@ -14,7 +14,7 @@ export default function SprekenSection({ lessonId, payload }: Props) {
   return (
     <div className="space-y-4">
       {payload.intro && (
-        <p className="text-sm text-zinc-600">{payload.intro}</p>
+        <p className="px-1 text-sm text-zinc-600 dark:text-zinc-300">{payload.intro}</p>
       )}
       <ol className="space-y-3">
         {payload.lines.map((line, i) => (
@@ -133,17 +133,17 @@ function SpeakLineCard({
   }
 
   return (
-    <article className="rounded-xl border border-zinc-200 bg-white p-4">
+    <article className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-base text-zinc-900">
-            <span className="mr-2 text-xs font-medium text-zinc-400">
+          <p className="text-base text-zinc-900 dark:text-zinc-100">
+            <span className="mr-2 text-xs font-medium text-zinc-400 dark:text-zinc-500">
               {index}.
             </span>
             {line.nl}
           </p>
           {line.en && (
-            <p className="mt-0.5 text-xs text-zinc-500">{line.en}</p>
+            <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">{line.en}</p>
           )}
         </div>
         {line.audioId && (
@@ -161,7 +161,7 @@ function SpeakLineCard({
             onClick={startRecord}
             title="Neem op"
             aria-label="Neem op"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-600 ring-1 ring-red-200 transition-colors hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-600 ring-1 ring-red-200 transition-colors hover:bg-red-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1 dark:bg-red-950/40 dark:text-red-400 dark:ring-red-900/60 dark:hover:bg-red-950/60"
           >
             <MicIcon size={18} />
           </button>
@@ -178,7 +178,7 @@ function SpeakLineCard({
             <button
               type="button"
               onClick={playMine}
-              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:border-zinc-300 hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-700"
             >
               <PlayIcon />
               Mijn opname
@@ -188,7 +188,7 @@ function SpeakLineCard({
               onClick={startRecord}
               title="Opnieuw opnemen"
               aria-label="Opnieuw opnemen"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-zinc-600 ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-zinc-600 ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-1 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700 dark:hover:bg-zinc-700"
             >
               <MicIcon size={14} />
             </button>
@@ -233,10 +233,10 @@ function RecordingControls({
         </button>
       </span>
       <div className="flex flex-col leading-tight">
-        <span className="font-mono text-sm tabular-nums text-red-700">
+        <span className="font-mono text-sm tabular-nums text-red-700 dark:text-red-400">
           {formatSeconds(elapsedMs)}
         </span>
-        <span className="text-[10px] uppercase tracking-wider text-zinc-400">
+        <span className="text-[10px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
           nog {formatSeconds(remainingMs)}
         </span>
       </div>

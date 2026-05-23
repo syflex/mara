@@ -16,8 +16,8 @@ interface Props {
 }
 
 const STYLES: Record<Gender, string> = {
-  de: 'bg-indigo-50 text-indigo-700',
-  het: 'bg-rose-50 text-rose-700',
+  de: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
+  het: 'bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300',
 };
 
 export default function ArticleChip({ gender }: Props) {
