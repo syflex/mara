@@ -1,28 +1,3 @@
-export type KnmTheme =
-  | 'werk-inkomen'
-  | 'wonen'
-  | 'gezondheidszorg'
-  | 'onderwijs'
-  | 'rechten-plichten'
-  | 'geschiedenis'
-  | 'politiek'
-  | 'geografie'
-  | 'dagelijks-leven'
-  | 'cultuur';
-
-export const KNM_THEMES: { id: KnmTheme; nl: string; en: string }[] = [
-  { id: 'werk-inkomen', nl: 'Werk en inkomen', en: 'Work and income' },
-  { id: 'wonen', nl: 'Wonen', en: 'Housing' },
-  { id: 'gezondheidszorg', nl: 'Gezondheidszorg', en: 'Healthcare' },
-  { id: 'onderwijs', nl: 'Onderwijs', en: 'Education' },
-  { id: 'rechten-plichten', nl: 'Rechten en plichten', en: 'Rights and duties' },
-  { id: 'geschiedenis', nl: 'Geschiedenis', en: 'History' },
-  { id: 'politiek', nl: 'Politiek', en: 'Politics' },
-  { id: 'geografie', nl: 'Geografie', en: 'Geography' },
-  { id: 'dagelijks-leven', nl: 'Dagelijks leven', en: 'Daily life' },
-  { id: 'cultuur', nl: 'Cultuur', en: 'Culture' },
-];
-
 export type PartOfSpeech =
   | 'noun'
   | 'verb'
@@ -58,20 +33,6 @@ export interface SrsState {
   lastReview?: number;
 }
 
-export interface KnmQuestion {
-  id: string;
-  theme: KnmTheme;
-  questionNl: string;
-  questionEn?: string;
-  choices: { nl: string; en?: string }[];
-  correctIndex: number;
-  explanationNl?: string;
-  explanationEn?: string;
-  source?: string;
-  srs: SrsState;
-  createdAt: number;
-}
-
 export interface VocabCard {
   id: string;
   dutch: string;
@@ -84,7 +45,6 @@ export interface VocabCard {
   auxiliary?: 'hebben' | 'zijn';
   exampleNl?: string;
   exampleEn?: string;
-  theme?: KnmTheme;
   level: Level;
   notes?: string;
   source: 'official-a2' | 'starter' | 'custom' | 'lesson';
@@ -94,76 +54,6 @@ export interface VocabCard {
   createdAt: number;
 }
 
-export interface CustomDeck {
-  id: string;
-  name: string;
-  description?: string;
-  color?: string;
-  createdAt: number;
-}
-
-export interface CustomFlashcard {
-  id: string;
-  deckId: string;
-  front: string;
-  back: string;
-  tags?: string[];
-  imageUrl?: string;
-  audioFrontUrl?: string;
-  audioBackUrl?: string;
-  srs: SrsState;
-  createdAt: number;
-}
-
-export type SpeakingFormat =
-  | 'video-response'
-  | 'one-picture'
-  | 'two-picture-choose'
-  | 'three-picture-tell';
-
-export interface SpeakingPrompt {
-  id: string;
-  format: SpeakingFormat;
-  promptNl: string;
-  promptEn?: string;
-  imageUrls?: string[];
-  videoUrl?: string;
-  expectedSeconds: number;
-  modelAnswerNl?: string;
-  createdAt: number;
-}
-
-export interface SpeakingAttempt {
-  id: string;
-  promptId: string;
-  audioBlob: Blob;
-  durationSeconds: number;
-  selfRating?: 1 | 2 | 3 | 4 | 5;
-  notes?: string;
-  recordedAt: number;
-}
-
-export type ExamComponent = 'lezen' | 'luisteren' | 'spreken' | 'schrijven' | 'knm';
-
-export interface ExamSession {
-  id: string;
-  componentType: ExamComponent | 'full-mock';
-  startedAt: number;
-  completedAt?: number;
-  durationSeconds: number;
-  scoreCorrect: number;
-  scoreTotal: number;
-  responses: ExamResponse[];
-}
-
-export interface ExamResponse {
-  questionId: string;
-  componentType: ExamComponent;
-  userAnswer: string | number;
-  correct?: boolean;
-  timeSpentSeconds: number;
-}
-
 export type SrsRating = 1 | 2 | 3 | 4;
 export const SRS_RATING = {
   AGAIN: 1 as const,
@@ -171,19 +61,6 @@ export const SRS_RATING = {
   GOOD: 3 as const,
   EASY: 4 as const,
 };
-
-export type SectionType =
-  | 'uitleg'
-  | 'klanken'
-  | 'woorden'
-  | 'de-het'
-  | 'conjugatie'
-  | 'drill'
-  | 'zinsbouw'
-  | 'luisteren'
-  | 'spreken'
-  | 'mini-dialoog'
-  | 'schrijven';
 
 // Identifiers for inline SVG diagrams an uitleg block can reference.
 // Registry lives in src/components/lesson/uitleg-figures/index.ts.

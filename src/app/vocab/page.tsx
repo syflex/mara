@@ -20,15 +20,20 @@ export default function WoordreviewPage() {
     [],
   );
 
+  // Snapshot "now" once per mount. A vocab session is a discrete activity;
+  // freezing `now` keeps the queue stable (cards don't appear/disappear
+  // mid-session) and satisfies React's purity rule by keeping Date.now()
+  // out of the render body. Newly-due cards show up next time you visit.
+  const [now] = useState(() => Date.now());
+
   const queue = useMemo(() => {
     if (!all) return [] as VocabCard[];
-    const now = Date.now();
     const due = all.filter(
       (c) => c.srs.state !== 'new' && isDue(c.srs, now),
     );
     const fresh = all.filter((c) => c.srs.state === 'new');
     return [...due, ...fresh].sort((a, b) => a.srs.due - b.srs.due);
-  }, [all]);
+  }, [all, now]);
 
   const current = queue[0];
   const [revealed, setRevealed] = useState(false);
