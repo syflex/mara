@@ -79,7 +79,7 @@ function KlankDetail({
               <AudioPlayer
                 lessonId={lessonId}
                 audioId={ex.audioId}
-                label=""
+                ariaLabel={`Luister naar: ${ex.nl}`}
               />
             )}
           </li>

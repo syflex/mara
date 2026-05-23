@@ -240,14 +240,39 @@ export interface KlankenPayload {
   sounds: KlankSound[];
 }
 
+export interface MiniDialoogLine {
+  id: string;
+  speaker: string;
+  nl: string;
+  en?: string;
+  audioId?: string;
+}
+
+export interface MiniDialoogScene {
+  id: string;
+  titleNl: string;
+  titleEn?: string;
+  register: 'informeel' | 'formeel';
+  lines: MiniDialoogLine[];
+}
+
+export interface MiniDialoogPayload {
+  intro?: string;
+  scenes: MiniDialoogScene[];
+}
+
 export type LessonSection =
   | { id: string; type: 'uitleg'; payload: UitlegPayload }
   | { id: string; type: 'woorden'; payload: WoordenPayload }
   | { id: string; type: 'spreken'; payload: SprekenPayload }
   | { id: string; type: 'klanken'; payload: KlankenPayload }
+  | { id: string; type: 'mini-dialoog'; payload: MiniDialoogPayload }
   | {
       id: string;
-      type: Exclude<SectionType, 'uitleg' | 'woorden' | 'spreken' | 'klanken'>;
+      type: Exclude<
+        SectionType,
+        'uitleg' | 'woorden' | 'spreken' | 'klanken' | 'mini-dialoog'
+      >;
       payload: unknown;
     };
 
@@ -259,6 +284,10 @@ export interface Lesson {
   titleNl: string;
   titleEn: string;
   estimatedMinutes: number;
+  // Back-references to syllabus sections covered (e.g. ['§2.1', '§3.1', '§4']).
+  // Empty array allowed for legacy/placeholder lessons not yet remapped to the
+  // A0 syllabus. See A0/LESSONS_A0.md.
+  coverage: string[];
   sections: LessonSection[];
   prerequisites?: string[];
 }

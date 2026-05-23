@@ -60,6 +60,12 @@ function itemsFromSection(
       return section.payload.lines
         .filter((l) => l.audioId)
         .map((l) => ({ audioId: l.audioId as string, text: l.nl }));
+    case 'mini-dialoog':
+      return section.payload.scenes.flatMap((scene) =>
+        scene.lines
+          .filter((l) => l.audioId)
+          .map((l) => ({ audioId: l.audioId as string, text: l.nl })),
+      );
     default:
       return [];
   }

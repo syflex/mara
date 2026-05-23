@@ -6,6 +6,7 @@ import UitlegSection from './sections/UitlegSection';
 import WoordenSection from './sections/WoordenSection';
 import SprekenSection from './sections/SprekenSection';
 import KlankenSection from './sections/KlankenSection';
+import MiniDialoogSection from './sections/MiniDialoogSection';
 
 export default function SectionRenderer({
   section,
@@ -23,6 +24,10 @@ export default function SectionRenderer({
       return <SprekenSection lessonId={lessonId} payload={section.payload} />;
     case 'klanken':
       return <KlankenSection lessonId={lessonId} payload={section.payload} />;
+    case 'mini-dialoog':
+      return (
+        <MiniDialoogSection lessonId={lessonId} payload={section.payload} />
+      );
     default:
       return <PlaceholderSection section={section} />;
   }

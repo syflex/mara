@@ -54,7 +54,11 @@ export default function WoordenSection({ lessonId, payload }: Props) {
                 </p>
               </div>
               {w.audioId && (
-                <AudioPlayer lessonId={lessonId} audioId={w.audioId} label="" />
+                <AudioPlayer
+                  lessonId={lessonId}
+                  audioId={w.audioId}
+                  ariaLabel={`Luister naar: ${w.nl}`}
+                />
               )}
             </div>
             {w.exampleNl && (
