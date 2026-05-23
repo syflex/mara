@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { SprekenLine, SprekenPayload } from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
+import { RECORDING } from '@/lib/config';
 
 interface Props {
   lessonId: string;
@@ -26,11 +27,7 @@ export default function SprekenSection({ lessonId, payload }: Props) {
   );
 }
 
-// Hard cap on a single recording. A0 lines are 1–3s utterances; 10s is
-// generous and prevents the recorder running forever if the learner forgets
-// to stop. Tune (or make per-line) if longer prompts arrive later.
-const MAX_RECORDING_MS = 10_000;
-const TICK_MS = 100;
+const { maxMs: MAX_RECORDING_MS, tickMs: TICK_MS } = RECORDING;
 
 type RecorderState =
   | { kind: 'idle' }
@@ -217,16 +214,24 @@ function RecordingControls({
   const remainingMs = Math.max(0, maxMs - elapsedMs);
   return (
     <div className="inline-flex items-center gap-3">
-      <button
-        type="button"
-        onClick={onStop}
-        title="Stop opname"
-        aria-label="Stop opname"
-        className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
-      >
-        <ProgressRing elapsed={elapsedMs} total={maxMs} />
-        <StopIcon size={12} />
-      </button>
+      <span className="relative inline-flex">
+        {/* Halo: subtle expanding ring that signals "live mic" without
+            competing with the progress ring on the button itself. */}
+        <span
+          aria-hidden="true"
+          className="absolute -inset-1 rounded-full bg-red-400 opacity-30 animate-ping"
+        />
+        <button
+          type="button"
+          onClick={onStop}
+          title="Stop opname"
+          aria-label="Stop opname"
+          className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-red-600 text-white transition-colors hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+        >
+          <ProgressRing elapsed={elapsedMs} total={maxMs} />
+          <StopIcon size={12} />
+        </button>
+      </span>
       <div className="flex flex-col leading-tight">
         <span className="font-mono text-sm tabular-nums text-red-700">
           {formatSeconds(elapsedMs)}

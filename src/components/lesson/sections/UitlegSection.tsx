@@ -1,6 +1,7 @@
 'use client';
 
 import type { UitlegPayload } from '@/lib/types';
+import { UITLEG_FIGURES } from '@/components/lesson/uitleg-figures';
 
 export default function UitlegSection({ payload }: { payload: UitlegPayload }) {
   return (
@@ -36,6 +37,10 @@ export default function UitlegSection({ payload }: { payload: UitlegPayload }) {
                 ))}
               </ul>
             );
+          case 'figure': {
+            const Figure = UITLEG_FIGURES[block.figureId];
+            return <Figure key={i} />;
+          }
         }
       })}
     </article>

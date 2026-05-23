@@ -36,6 +36,10 @@ export const A0_LES_01: Lesson = {
             ],
           },
           {
+            kind: 'figure',
+            figureId: 'je-u-register',
+          },
+          {
             kind: 'heading',
             text: 'Why both from day one',
           },

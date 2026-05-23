@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import type { WoordenPayload } from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
+import ArticleChip from '@/components/ArticleChip';
 
 interface Props {
   lessonId: string;
@@ -33,9 +34,7 @@ export default function WoordenSection({ lessonId, payload }: Props) {
               )}
               <div className="min-w-0 flex-1">
                 <p className="text-base font-medium text-zinc-900">
-                  {w.gender && (
-                    <span className="mr-1 text-zinc-400">{w.gender}</span>
-                  )}
+                  {w.gender && <ArticleChip gender={w.gender} />}
                   {w.nl}
                 </p>
                 <p className="mt-0.5 flex flex-wrap items-center gap-2 text-sm text-zinc-500">

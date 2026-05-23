@@ -8,6 +8,7 @@ import { backfillLessonVocab } from '@/lib/lessons';
 import { isDue, review } from '@/lib/srs';
 import { SRS_RATING, type SrsRating, type VocabCard } from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
+import ArticleChip from '@/components/ArticleChip';
 
 export default function WoordreviewPage() {
   useEffect(() => {
@@ -125,9 +126,7 @@ function VocabCardView({
       )}
 
       <p className="text-2xl font-semibold tracking-tight text-zinc-900">
-        {card.gender && (
-          <span className="mr-2 text-zinc-400">{card.gender}</span>
-        )}
+        {card.gender && <ArticleChip gender={card.gender} />}
         {card.dutch}
       </p>
 

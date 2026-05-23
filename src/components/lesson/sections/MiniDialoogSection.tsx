@@ -8,6 +8,7 @@ import type {
 } from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
 import { audioUrl, hasAudio } from '@/lib/audio';
+import { MINI_DIALOOG } from '@/lib/config';
 
 interface Props {
   lessonId: string;
@@ -29,9 +30,7 @@ export default function MiniDialoogSection({ lessonId, payload }: Props) {
   );
 }
 
-// Gap between lines when playing a whole scene — long enough to feel like a
-// turn-taking dialogue, short enough to keep momentum. Tune as needed.
-const LINE_GAP_MS = 400;
+const { lineGapMs: LINE_GAP_MS } = MINI_DIALOOG;
 
 function Scene({
   scene,

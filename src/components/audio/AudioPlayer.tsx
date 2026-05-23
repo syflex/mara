@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { audioUrl, hasAudio } from '@/lib/audio';
+import { AUDIO } from '@/lib/config';
 
 interface Props {
   lessonId: string;
@@ -16,10 +17,10 @@ interface Props {
   withSlow?: boolean;
 }
 
-// Pitch-preserved half-speed. Slow enough to dissect a digraph, fast enough
-// not to drag. Tune via this constant if 0.5 feels off for the Xander voice.
-const SLOW_RATE = 0.5;
-const NORMAL_RATE = 1;
+const { normal: NORMAL_RATE, slow: SLOW_RATE } = AUDIO.rates;
+// Slow-button badge derived from the rate so it stays in sync if you tune
+// AUDIO.rates.slow. Renders "0.5×", "0.65×", etc.
+const SLOW_LABEL = `${SLOW_RATE}×`;
 
 export default function AudioPlayer({
   lessonId,
@@ -92,7 +93,7 @@ export default function AudioPlayer({
   const slowLabel =
     activeRate === SLOW_RATE
       ? 'Pauzeer langzame audio'
-      : `${baseLabel} (langzaam, ½×)`;
+      : `${baseLabel} (langzaam, ${SLOW_LABEL})`;
 
   return (
     <span className="inline-flex flex-col items-end gap-1">
@@ -103,7 +104,7 @@ export default function AudioPlayer({
           title={normalLabel}
           aria-label={normalLabel}
         >
-          {activeRate === NORMAL_RATE ? <PauseIcon /> : <SpeakerIcon />}
+          {activeRate === NORMAL_RATE ? <EqBars /> : <SpeakerIcon />}
         </RateButton>
         {withSlow && (
           <RateButton
@@ -113,10 +114,10 @@ export default function AudioPlayer({
             aria-label={slowLabel}
           >
             {activeRate === SLOW_RATE ? (
-              <PauseIcon />
+              <EqBars />
             ) : (
               <span className="text-[11px] font-semibold leading-none">
-                ½×
+                {SLOW_LABEL}
               </span>
             )}
           </RateButton>
@@ -176,17 +177,60 @@ function SpeakerIcon() {
   );
 }
 
-function PauseIcon() {
+// Three vertical bars that grow/shrink at offset speeds — the "audio playing"
+// indicator. Pure SVG SMIL animation; no CSS keyframes needed, starts the
+// moment it mounts. Replaces the static pause icon while playing.
+function EqBars() {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 16 16"
       width="14"
       height="14"
-      fill="currentColor"
       aria-hidden="true"
+      fill="currentColor"
     >
-      <rect x="6" y="5" width="4" height="14" rx="1" />
-      <rect x="14" y="5" width="4" height="14" rx="1" />
+      <rect x="1.5" y="6" width="2.5" height="4" rx="1">
+        <animate
+          attributeName="height"
+          values="4;10;4"
+          dur="0.7s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="y"
+          values="6;3;6"
+          dur="0.7s"
+          repeatCount="indefinite"
+        />
+      </rect>
+      <rect x="6.75" y="4" width="2.5" height="8" rx="1">
+        <animate
+          attributeName="height"
+          values="8;3;8"
+          dur="0.55s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="y"
+          values="4;6.5;4"
+          dur="0.55s"
+          repeatCount="indefinite"
+        />
+      </rect>
+      <rect x="12" y="5" width="2.5" height="6" rx="1">
+        <animate
+          attributeName="height"
+          values="6;9;6"
+          dur="0.85s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="y"
+          values="5;3.5;5"
+          dur="0.85s"
+          repeatCount="indefinite"
+        />
+      </rect>
     </svg>
   );
 }

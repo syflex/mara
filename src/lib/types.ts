@@ -185,10 +185,16 @@ export type SectionType =
   | 'mini-dialoog'
   | 'schrijven';
 
+// Identifiers for inline SVG diagrams an uitleg block can reference.
+// Registry lives in src/components/lesson/uitleg-figures/index.ts.
+// Add a new id here and a matching component to the registry to extend.
+export type UitlegFigureId = 'je-u-register';
+
 export type UitlegBlock =
   | { kind: 'heading'; text: string }
   | { kind: 'paragraph'; text: string }
-  | { kind: 'list'; items: string[] };
+  | { kind: 'list'; items: string[] }
+  | { kind: 'figure'; figureId: UitlegFigureId };
 
 export interface UitlegPayload {
   blocks: UitlegBlock[];
