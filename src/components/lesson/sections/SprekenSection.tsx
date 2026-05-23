@@ -57,10 +57,18 @@ function SpeakLineCard({
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
+  function stopRecorder() {
+    const recorder = recorderRef.current;
+    if (recorder?.state === 'recording') {
+      recorder.stop();
+    }
+    recorderRef.current = null;
+  }
+
   useEffect(() => {
     return () => {
       if (state.kind === 'recording') {
-        recorderRef.current?.stop();
+        stopRecorder();
         streamRef.current?.getTracks().forEach((t) => t.stop());
       }
       if (state.kind === 'recorded') {
@@ -78,7 +86,7 @@ function SpeakLineCard({
     const tick = () => {
       const t = Date.now();
       if (t - startedAt >= MAX_RECORDING_MS) {
-        recorderRef.current?.stop();
+        stopRecorder();
         return;
       }
       setNow(t);
@@ -123,8 +131,7 @@ function SpeakLineCard({
   }
 
   function stopRecord() {
-    recorderRef.current?.stop();
-    recorderRef.current = null;
+    stopRecorder();
   }
 
   function playMine() {

@@ -19,13 +19,11 @@ export const viewport: Viewport = {
   themeColor: '#ea580c',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="nl" className="h-full">
       <head>
         {/* Sets the dark class on <html> before React hydrates — avoids
             flash of wrong theme. Reads from localStorage (explicit choice)
