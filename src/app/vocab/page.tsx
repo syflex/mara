@@ -119,7 +119,7 @@ function VocabCardView({
           <AudioPlayer
             lessonId={card.lessonId as string}
             audioId={card.audioId as string}
-            label=""
+            ariaLabel={`Luister naar: ${card.dutch}`}
           />
         </div>
       )}
