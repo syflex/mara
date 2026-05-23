@@ -1,92 +1,49 @@
 /**
- * Generates .m4a (AAC) audio for every (lessonId, audioId) declared in the
- * lessons, using the built-in macOS `say` command. No API key, no cost,
- * works fully offline. Quality is OK but flatter than ElevenLabs.
+ * ⚠️  TESTING FALLBACK — prefer `pnpm audio:build` (ElevenLabs).
+ *
+ * Generates speech via the built-in macOS `say` command. No API key, no cost,
+ * fully offline. Quality is noticeably flatter than ElevenLabs and the
+ * Xander voice has limited prosody — fine for local iteration, NOT what
+ * shipping content should sound like. Use this only when:
+ *
+ *   • You don't have ELEVENLABS_API_KEY available (offline / no account)
+ *   • You're sanity-checking a new lesson and don't want to spend credits
+ *   • You're on a CI machine where curl-to-ElevenLabs is blocked
+ *
+ * Output: WAV (16-bit PCM mono 22050Hz) — universal browser support, ~44KB/s.
  *
  * Requires macOS with a Dutch voice installed:
- *   System Settings → Accessibility → Spoken Content → System Voice
- *   → Manage Voices → Dutch (Netherlands) → Xander
+ *   System Settings → Accessibility → Spoken Content → System Voice →
+ *   Manage Voices → Dutch (Netherlands) → Xander
  *
  * Usage:
  *   pnpm audio:build:say
  *
  * Optional env:
- *   SAY_VOICE              — default: Xander (Dutch, NL). Try Ellen for BE.
- *   SAY_RATE               — words per minute (default voice default — try 160
- *                            for A0 pacing).
+ *   SAY_VOICE              — default: Xander (NL). Try Ellen for BE.
+ *   SAY_RATE               — words per minute (try 160 for A0 pacing).
  *   AUDIO_BUILD_DRY_RUN=1  — log what would be generated; no `say` calls.
  */
 
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { promisify } from 'node:util';
-import { LESSONS } from '../src/lib/content/lessons';
-import type { Lesson, LessonSection } from '../src/lib/types';
+import { collectAllAudio } from './lib/audio-items';
+import {
+  AUDIO_DIR,
+  loadManifest,
+  saveManifest,
+} from './lib/audio-manifest';
 
 const execFileP = promisify(execFile);
 
 const VOICE = process.env.SAY_VOICE ?? 'Xander';
 const RATE = process.env.SAY_RATE;
 const DRY_RUN = process.env.AUDIO_BUILD_DRY_RUN === '1';
-// WAV is the only audio format every browser plays without codec surprises.
-// 16-bit PCM mono at 22050Hz ≈ 44KB/sec — plenty for speech, ~5x larger
-// than AAC. Still tiny in absolute terms (a Les 1 build is ~600KB).
 const EXT = 'wav';
 const SAMPLE_RATE = '22050';
-
-const ROOT = process.cwd();
-const MANIFEST_PATH = join(ROOT, 'src/lib/content/audio-manifest.json');
-const AUDIO_DIR = join(ROOT, 'public/audio');
-
-type Manifest = Record<string, Record<string, string>>;
-
-interface AudioItem {
-  lessonId: string;
-  audioId: string;
-  text: string;
-}
-
-function itemsFromSection(
-  section: LessonSection,
-): { audioId: string; text: string }[] {
-  switch (section.type) {
-    case 'woorden':
-      return section.payload.words
-        .filter((w) => w.audioId)
-        .map((w) => ({ audioId: w.audioId as string, text: w.nl }));
-    case 'spreken':
-      return section.payload.lines
-        .filter((l) => l.audioId)
-        .map((l) => ({ audioId: l.audioId as string, text: l.nl }));
-    case 'mini-dialoog':
-      return section.payload.scenes.flatMap((scene) =>
-        scene.lines
-          .filter((l) => l.audioId)
-          .map((l) => ({ audioId: l.audioId as string, text: l.nl })),
-      );
-    default:
-      return [];
-  }
-}
-
-function collectAudio(lesson: Lesson): AudioItem[] {
-  const items: AudioItem[] = [];
-  const seen = new Set<string>();
-  for (const section of lesson.sections) {
-    for (const item of itemsFromSection(section)) {
-      if (seen.has(item.audioId)) continue;
-      seen.add(item.audioId);
-      items.push({
-        lessonId: lesson.id,
-        audioId: item.audioId,
-        text: item.text,
-      });
-    }
-  }
-  return items;
-}
 
 async function ttsViaSay(text: string, outPath: string): Promise<void> {
   const args: string[] = ['-v', VOICE];
@@ -99,19 +56,6 @@ async function ttsViaSay(text: string, outPath: string): Promise<void> {
     text,
   );
   await execFileP('say', args);
-}
-
-async function loadManifest(): Promise<Manifest> {
-  try {
-    const raw = await readFile(MANIFEST_PATH, 'utf8');
-    return JSON.parse(raw) as Manifest;
-  } catch {
-    return {};
-  }
-}
-
-async function saveManifest(m: Manifest): Promise<void> {
-  await writeFile(MANIFEST_PATH, `${JSON.stringify(m, null, 2)}\n`);
 }
 
 async function checkVoice(): Promise<void> {
@@ -132,6 +76,11 @@ async function checkVoice(): Promise<void> {
 }
 
 async function main() {
+  console.log(
+    '\n⚠️  Running TESTING FALLBACK (macOS `say`). For shipping audio,' +
+      ' use `pnpm audio:build` instead.\n',
+  );
+
   if (!DRY_RUN) await checkVoice();
 
   const manifest = await loadManifest();
@@ -139,8 +88,7 @@ async function main() {
   let skipped = 0;
   let failed = 0;
 
-  for (const lesson of LESSONS) {
-    const items = collectAudio(lesson);
+  for (const { lesson, items } of collectAllAudio()) {
     if (items.length === 0) continue;
     console.log(`\n${lesson.id} — ${items.length} audio item(s)`);
 

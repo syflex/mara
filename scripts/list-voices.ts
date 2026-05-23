@@ -1,14 +1,22 @@
 /**
  * Lists every ElevenLabs voice your API key can access, grouped by category.
+ * Use the printed voice_id with ELEVENLABS_VOICE_ID to override the default
+ * in `pnpm audio:build`.
  *
  * Usage:
- *   ELEVENLABS_API_KEY=sk_... pnpm audio:voices
+ *   pnpm audio:voices   # reads ELEVENLABS_API_KEY from .env.local
  */
+
+import { loadEnvLocal } from './lib/env-local';
+
+loadEnvLocal();
 
 const API_KEY = process.env.ELEVENLABS_API_KEY;
 
 if (!API_KEY) {
-  console.error('Missing ELEVENLABS_API_KEY.');
+  console.error(
+    'Missing ELEVENLABS_API_KEY. Set it in .env.local or the shell.',
+  );
   process.exit(1);
 }
 
@@ -49,7 +57,7 @@ async function main() {
   }
 
   console.log(
-    '\nTo use a voice:  ELEVENLABS_VOICE_ID=<voice_id> pnpm audio:build',
+    '\nTo use a voice:  set ELEVENLABS_VOICE_ID in .env.local, then `pnpm audio:build`.',
   );
 }
 
