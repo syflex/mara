@@ -9,6 +9,18 @@
     "goedenavond": "mp3",
     "tot-ziens": "mp3",
     "tot-morgen": "mp3",
-    "meneer": "mp3"
+    "meneer": "mp3",
+    "mevrouw": "mp3",
+    "dialoog-peer-1": "mp3",
+    "dialoog-peer-2": "mp3",
+    "dialoog-peer-3": "mp3",
+    "dialoog-clerk-1": "mp3",
+    "dialoog-clerk-2": "mp3",
+    "dialoog-clerk-3": "mp3",
+    "spreken-hoi-hoe-gaat-het": "mp3",
+    "spreken-goedemorgen-mevrouw": "mp3",
+    "spreken-dag-meneer": "mp3",
+    "spreken-tot-ziens-fijne-dag": "mp3",
+    "spreken-doei-tot-morgen": "mp3"
   }
 }
