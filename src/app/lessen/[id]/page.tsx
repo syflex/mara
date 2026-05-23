@@ -99,10 +99,10 @@ export default function LessonViewerPage({
     <div className="space-y-5 pb-24">
       {/* Top: back link + sectie counter + hero progress bar */}
       <div>
-        <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center justify-between gap-3 text-xs text-zinc-500 dark:text-zinc-400">
           <Link
             href="/lessen"
-            className="inline-flex items-center transition-colors hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="-ml-2 inline-flex min-h-10 items-center rounded-md px-2 py-1 transition-colors hover:bg-zinc-100 hover:text-zinc-900 active:bg-zinc-200 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:active:bg-zinc-700"
           >
             ← Alle lessen
           </Link>
@@ -165,7 +165,10 @@ export default function LessonViewerPage({
 
       {/* Bottom action bar: prev icon + fat next pill */}
       {!showCelebration && section && (
-        <div className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/90 backdrop-blur transition-colors dark:border-zinc-800 dark:bg-zinc-900/90">
+        <div
+          className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white/90 backdrop-blur transition-colors dark:border-zinc-800 dark:bg-zinc-900/90"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
           <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
             <button
               type="button"
@@ -173,17 +176,17 @@ export default function LessonViewerPage({
               disabled={isFirst}
               aria-label="Vorige sectie"
               title="Vorige sectie"
-              className="grid h-11 w-11 shrink-0 place-content-center rounded-full ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40 dark:ring-zinc-700 dark:hover:bg-zinc-800"
+              className="grid h-11 w-11 shrink-0 place-content-center rounded-full ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50 active:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:bg-transparent dark:ring-zinc-700 dark:hover:bg-zinc-800 dark:active:bg-zinc-700"
             >
               <span className="text-lg text-zinc-500 dark:text-zinc-400">←</span>
             </button>
             <button
               type="button"
               onClick={() => void handleNext()}
-              className={`flex-1 rounded-full px-6 py-3 text-base font-semibold text-white shadow-lg transition-colors ${
+              className={`min-h-12 flex-1 rounded-full px-6 py-3 text-base font-semibold text-white shadow-lg transition-colors ${
                 reviewMode
-                  ? 'bg-zinc-700 shadow-zinc-700/20 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-500'
-                  : 'bg-orange-600 shadow-orange-600/30 hover:bg-orange-700'
+                  ? 'bg-zinc-700 shadow-zinc-700/20 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-600 dark:hover:bg-zinc-500 dark:active:bg-zinc-400'
+                  : 'bg-orange-600 shadow-orange-600/30 hover:bg-orange-700 active:bg-orange-800'
               }`}
             >
               {reviewMode
@@ -257,12 +260,12 @@ function SectionPills({
             type="button"
             onClick={() => onJump(i)}
             aria-current={active ? 'step' : undefined}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+            className={`inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
               active
-                ? 'bg-orange-600 text-white'
+                ? 'bg-orange-600 text-white active:bg-orange-700'
                 : done
-                  ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/60'
-                  : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700'
+                  ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 active:bg-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/60 dark:active:bg-emerald-950/80'
+                  : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 active:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:active:bg-zinc-600'
             }`}
           >
             {done && !active ? (
@@ -337,14 +340,14 @@ function CompletionCard({
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link
           href={reviewHref}
-          className="rounded-md border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-900 transition-colors hover:bg-emerald-50 dark:border-emerald-900/50 dark:bg-zinc-900 dark:text-emerald-200 dark:hover:bg-emerald-950/40"
+          className="inline-flex min-h-11 items-center rounded-xl border border-emerald-200 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-900 transition-colors hover:bg-emerald-50 active:bg-emerald-100 dark:border-emerald-900/50 dark:bg-zinc-900 dark:text-emerald-200 dark:hover:bg-emerald-950/40 dark:active:bg-emerald-950/60"
         >
           Bekijk opnieuw
         </Link>
         {nextHref && (
           <Link
             href={nextHref}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+            className="inline-flex min-h-11 items-center rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 active:bg-emerald-800"
           >
             Volgende les →
           </Link>

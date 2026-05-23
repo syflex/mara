@@ -55,10 +55,10 @@ function TrackSwitcher({
             aria-selected={active}
             type="button"
             onClick={() => onChange(t.id)}
-            className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+            className={`min-h-9 rounded-md px-3 py-2 text-sm transition-colors ${
               active
                 ? 'bg-white font-medium text-zinc-900 shadow-sm dark:bg-zinc-800 dark:text-zinc-50'
-                : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100'
+                : 'text-zinc-600 hover:text-zinc-900 active:bg-zinc-200/60 dark:text-zinc-400 dark:hover:text-zinc-100 dark:active:bg-zinc-800/60'
             }`}
           >
             {t.label}
@@ -185,8 +185,10 @@ function Ring({ label, value, total, stroke, trackLight, trackDark, display, sub
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - fraction);
   return (
-    <div className="flex flex-col items-center gap-1.5">
-      <span className="relative inline-flex h-24 w-24 items-center justify-center">
+    <div className="flex min-w-0 flex-col items-center gap-1.5">
+      {/* Ring sizes down on narrow phones (h-20 = 80px) so 3 rings + gaps fit
+          inside an iPhone-SE-width card without horizontal overflow. */}
+      <span className="relative inline-flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24">
         <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90">
           <circle
             cx="50"
@@ -247,7 +249,7 @@ function RingsCard({
   wordsTotal: number;
 }) {
   return (
-    <section className="grid grid-cols-3 gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+    <section className="grid grid-cols-3 gap-1 rounded-3xl bg-white p-3 shadow-sm ring-1 ring-zinc-900/5 sm:gap-2 sm:p-5 dark:bg-zinc-900 dark:ring-white/5">
       <Ring
         label="Lessen"
         value={lessonsDone}
@@ -291,7 +293,7 @@ function NextLessonCard({ lesson, isFirst }: { lesson: Lesson; isFirst: boolean 
       </div>
       <Link
         href={`/lessen/${lesson.id}`}
-        className="flex items-start gap-4 px-6 py-5 transition-colors hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40"
+        className="flex items-start gap-4 px-6 py-5 transition-colors hover:bg-zinc-50/60 active:bg-zinc-100/60 dark:hover:bg-zinc-800/40 dark:active:bg-zinc-800/60"
       >
         <span className="grid h-14 w-14 shrink-0 place-content-center rounded-2xl bg-orange-100 font-serif text-2xl font-semibold text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">
           {lesson.order}
@@ -312,7 +314,7 @@ function NextLessonCard({ lesson, isFirst }: { lesson: Lesson; isFirst: boolean 
       <div className="border-t border-zinc-100 px-6 py-3 dark:border-zinc-800">
         <Link
           href={`/lessen/${lesson.id}`}
-          className="block w-full rounded-xl bg-orange-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-orange-700"
+          className="block min-h-12 w-full rounded-xl bg-orange-600 px-4 py-3 text-center text-base font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 active:bg-orange-800"
         >
           {isFirst ? 'Beginnen →' : 'Doorgaan →'}
         </Link>
@@ -338,7 +340,7 @@ function ReviewCard({ count, total }: { count: number; total: number }) {
   return (
     <Link
       href="/review"
-      className={`rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 transition-shadow hover:shadow-md dark:bg-zinc-900 dark:ring-white/5 ${
+      className={`block min-h-24 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 transition-all hover:shadow-md active:scale-[0.98] active:bg-zinc-50 dark:bg-zinc-900 dark:ring-white/5 dark:active:bg-zinc-800/60 ${
         hasWork ? '' : 'opacity-70'
       }`}
     >
@@ -401,7 +403,7 @@ function RecentCard({
             <li key={lesson.id}>
               <Link
                 href={`/lessen/${lesson.id}${done ? '?review=1' : ''}`}
-                className="flex items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                className="flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-800/40 dark:active:bg-zinc-800/60"
               >
                 <span
                   className={`grid h-9 w-9 shrink-0 place-content-center rounded-full text-xs font-semibold ${
@@ -463,7 +465,7 @@ function InburgeringTrack({ onBack }: { onBack: () => void }) {
       <button
         type="button"
         onClick={onBack}
-        className="mt-6 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        className="mt-6 inline-flex min-h-11 items-center rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       >
         ← Begin met A0 → A1
       </button>

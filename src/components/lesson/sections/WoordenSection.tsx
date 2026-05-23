@@ -25,7 +25,9 @@ export default function WoordenSection({ lessonId, payload }: Props) {
             {/* Imagery slot — real image when authored, a serif-letter
                 placeholder over a soft gradient otherwise. The gradient
                 stays subtle in both themes so the letter reads clearly. */}
-            <div className="relative aspect-[5/3] bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 dark:from-orange-950/30 dark:via-amber-950/20 dark:to-rose-950/30">
+            {/* Imagery: short banner on mobile (decorative letter only),
+                taller on desktop where real images justify the space. */}
+            <div className="relative aspect-[5/2] bg-gradient-to-br from-orange-50 via-amber-50 to-rose-50 sm:aspect-[5/3] dark:from-orange-950/30 dark:via-amber-950/20 dark:to-rose-950/30">
               {w.imageUrl ? (
                 <Image
                   src={w.imageUrl}
@@ -37,7 +39,7 @@ export default function WoordenSection({ lessonId, payload }: Props) {
               ) : (
                 <span
                   aria-hidden
-                  className="absolute inset-0 grid place-content-center font-serif text-4xl font-medium text-zinc-400/70 dark:text-zinc-500/60"
+                  className="absolute inset-0 grid place-content-center font-serif text-3xl font-medium text-zinc-400/70 sm:text-4xl dark:text-zinc-500/60"
                 >
                   {w.nl[0]?.toUpperCase()}
                 </span>

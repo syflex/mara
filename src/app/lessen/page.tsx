@@ -63,9 +63,9 @@ function LessonRow({
 
   const body = (
     <div
-      className={`flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-900/5 transition-colors dark:bg-zinc-900 dark:ring-white/5 ${
+      className={`flex min-h-14 items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-900/5 transition-colors dark:bg-zinc-900 dark:ring-white/5 ${
         unlocked
-          ? 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60'
+          ? 'hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-800/60 dark:active:bg-zinc-800'
           : 'opacity-60'
       }`}
     >

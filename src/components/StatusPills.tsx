@@ -20,7 +20,7 @@ export default function StatusPills() {
   const minutesReached = minutes >= goal;
 
   return (
-    <div className="flex items-center gap-1 px-1 text-xs font-semibold tabular-nums">
+    <div className="flex items-center gap-2 px-1 text-xs font-semibold tabular-nums">
       <Pill
         title={`Streak: ${streak} ${streak === 1 ? 'dag' : 'dagen'}`}
         tone={streak > 0 ? 'flame' : 'muted'}

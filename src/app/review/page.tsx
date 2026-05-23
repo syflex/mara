@@ -50,7 +50,7 @@ export default function ReviewPage() {
       {ready > 0 ? (
         <Link
           href="/vocab"
-          className="block rounded-xl bg-orange-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-orange-600/20 transition-colors hover:bg-orange-700"
+          className="block min-h-12 rounded-xl bg-orange-600 px-4 py-3.5 text-center text-base font-semibold text-white shadow-lg shadow-orange-600/20 transition-colors hover:bg-orange-700 active:bg-orange-800"
         >
           Start review →
         </Link>
@@ -76,8 +76,8 @@ function ReviewRow({
 }) {
   const body = (
     <div
-      className={`flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-900/5 transition-colors dark:bg-zinc-900 dark:ring-white/5 ${
-        href ? 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60' : 'opacity-60'
+      className={`flex min-h-14 items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-zinc-900/5 transition-colors dark:bg-zinc-900 dark:ring-white/5 ${
+        href ? 'hover:bg-zinc-50 active:bg-zinc-100 dark:hover:bg-zinc-800/60 dark:active:bg-zinc-800' : 'opacity-60'
       }`}
     >
       <div>

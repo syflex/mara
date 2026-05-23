@@ -13,7 +13,7 @@ export default function ThemeToggle() {
         theme === 'light' ? 'Schakel naar donker thema' : 'Schakel naar licht thema'
       }
       title={theme === 'light' ? 'Donker thema' : 'Licht thema'}
-      className="grid h-8 w-8 place-content-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+      className="grid h-10 w-10 place-content-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 active:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100 dark:active:bg-zinc-700"
     >
       {theme === 'light' ? <MoonIcon /> : <SunIcon />}
     </button>

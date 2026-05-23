@@ -31,10 +31,10 @@ export default function KlankenSection({ lessonId, payload }: Props) {
               key={s.id}
               type="button"
               onClick={() => setSelectedId(s.id)}
-              className={`rounded-lg border px-4 py-2 text-base font-semibold transition-colors ${
+              className={`inline-flex min-h-11 items-center rounded-lg border px-4 py-2 text-base font-semibold transition-colors ${
                 active
                   ? 'border-orange-300 bg-orange-50 text-orange-800 dark:border-orange-800 dark:bg-orange-950/40 dark:text-orange-200'
-                  : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800'
+                  : 'border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:active:bg-zinc-700'
               }`}
               aria-pressed={active}
             >

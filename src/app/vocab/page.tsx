@@ -153,7 +153,7 @@ function VocabCardView({
         <button
           type="button"
           onClick={onReveal}
-          className="mt-6 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+          className="mt-6 inline-flex min-h-11 items-center rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
         >
           Toon antwoord
         </button>
@@ -175,7 +175,7 @@ function RateBtn({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-md px-3 py-2 text-sm font-medium text-white ${color}`}
+      className={`min-h-12 rounded-xl px-2 py-3 text-sm font-semibold text-white shadow-sm transition-transform active:scale-95 ${color}`}
     >
       {label}
     </button>
@@ -203,7 +203,7 @@ function EmptyState({
             </p>
             <Link
               href="/lessen"
-              className="mt-5 inline-block rounded-md bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700"
+              className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-orange-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-orange-700 active:bg-orange-800"
             >
               Naar lessen
             </Link>
@@ -219,7 +219,7 @@ function EmptyState({
             </p>
             <Link
               href="/"
-              className="mt-5 inline-block rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
             >
               ← Terug naar Vandaag
             </Link>
