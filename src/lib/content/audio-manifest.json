@@ -3,24 +3,12 @@
     "hallo": "mp3",
     "hoi": "mp3",
     "dag": "mp3",
+    "doei": "mp3",
     "goedemorgen": "mp3",
     "goedemiddag": "mp3",
     "goedenavond": "mp3",
     "tot-ziens": "mp3",
     "tot-morgen": "mp3",
-    "doei": "mp3",
-    "spreken-hoi-hoe-gaat-het": "wav",
-    "spreken-tot-ziens-fijne-dag": "wav",
-    "meneer": "mp3",
-    "mevrouw": "wav",
-    "spreken-goedemorgen-mevrouw": "wav",
-    "spreken-dag-meneer": "wav",
-    "spreken-doei-tot-morgen": "wav",
-    "dialoog-peer-1": "wav",
-    "dialoog-peer-2": "wav",
-    "dialoog-peer-3": "wav",
-    "dialoog-clerk-1": "wav",
-    "dialoog-clerk-2": "wav",
-    "dialoog-clerk-3": "wav"
+    "meneer": "mp3"
   }
 }
