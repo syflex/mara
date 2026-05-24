@@ -196,6 +196,9 @@ export default function DrillSection({ lessonId, payload }: Props) {
           </div>
         ) : (
           <TypedInputBlock
+            // Force a fresh instance per item so the internal input value
+            // (local useState) doesn't bleed from one drill item to the next.
+            key={currentIndex}
             locked={locked}
             answer={answer?.kind === 'typed' ? answer : null}
             expected={item.expected}

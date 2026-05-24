@@ -209,8 +209,8 @@ export const A0_LES_04: Lesson = {
         intro:
           'Luister naar de zin. Daarin zitten vijf digrafen, één voor één. Identificeer ze in volgorde. Beluister meerdere keren als je wilt — het transcript is verstopt totdat je het vraagt.',
         audioId: 'luisteren-zin-digrafen',
-        transcriptNl: 'Het ijs is koud, en het boek is leuk in het huis.',
-        transcriptEn: 'The ice is cold, and the book is nice in the house.',
+        transcriptNl: 'Vandaag is mijn huis koud, maar het boek is leuk.',
+        transcriptEn: 'Today my house is cold, but the book is nice.',
         questions: [
           {
             questionNl: 'Welke klank hoor je het eerst?',
@@ -220,22 +220,22 @@ export const A0_LES_04: Lesson = {
           {
             questionNl: 'Daarna?',
             choices: ['ij', 'ei', 'ui', 'eu', 'oe', 'ou'],
-            correctIndex: 5,
+            correctIndex: 2,
           },
           {
             questionNl: 'Het derde digraaf?',
             choices: ['ij', 'ei', 'ui', 'eu', 'oe', 'ou'],
-            correctIndex: 4,
+            correctIndex: 5,
           },
           {
             questionNl: 'Het vierde?',
             choices: ['ij', 'ei', 'ui', 'eu', 'oe', 'ou'],
-            correctIndex: 3,
+            correctIndex: 4,
           },
           {
             questionNl: 'En de laatste klank?',
             choices: ['ij', 'ei', 'ui', 'eu', 'oe', 'ou'],
-            correctIndex: 2,
+            correctIndex: 3,
           },
         ],
       },

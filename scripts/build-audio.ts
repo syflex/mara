@@ -13,11 +13,15 @@
  *
  * Env (set in `.env.local` or shell — shell takes precedence):
  *   ELEVENLABS_API_KEY   — required.
- *   ELEVENLABS_VOICE_ID  — defaults to Aria (60CwgZt94Yf7yYIXMDDe). Run
+ *   ELEVENLABS_VOICE_ID  — defaults to Peter (60CwgZt94Yf7yYIXMDDe), a
+ *                          native Dutch (nl-NL) professional narrator. Run
  *                          `pnpm audio:voices` to see voices your key can use.
  *   ELEVENLABS_MODEL_ID  — defaults to eleven_flash_v2_5 (fast, cheap,
  *                          multilingual). eleven_multilingual_v2 is higher
  *                          quality but slower / more expensive.
+ *   ELEVENLABS_SPEED     — generation-time playback speed; defaults to 0.8.
+ *                          Range on flash_v2_5: 0.7–1.2. Lower = slower /
+ *                          clearer for beginners; higher = more natural pace.
  *
  * Use the macOS `say` fallback (`pnpm audio:build:say`) only for offline /
  * throwaway dev — quality is noticeably flatter.

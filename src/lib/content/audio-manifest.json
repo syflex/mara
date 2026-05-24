@@ -117,7 +117,9 @@
     "dialoog-u-l3": "mp3",
     "dialoog-u-l4": "mp3",
     "spreken-ans-ik-heet": "mp3",
-    "spreken-ans-mijn-naam": "mp3"
+    "spreken-ans-mijn-naam": "mp3",
+    "vraag-wie-bent-u": "mp3",
+    "vraag-waar-komt-u-vandaan": "mp3"
   },
   "a0-les-07": {
     "num-nul": "mp3",
@@ -142,6 +144,8 @@
     "num-negentien": "mp3",
     "num-twintig": "mp3",
     "tel-0-tot-10": "mp3",
-    "tel-11-tot-20": "mp3"
+    "tel-11-tot-20": "mp3",
+    "jn-is-het-zes": "mp3",
+    "jn-is-het-tien": "mp3"
   }
 }
