@@ -51,9 +51,9 @@ const API_KEY = process.env.ELEVENLABS_API_KEY;
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID ?? '60CwgZt94Yf7yYIXMDDe';
 const MODEL_ID = process.env.ELEVENLABS_MODEL_ID ?? 'eleven_flash_v2_5';
 // Generation-time playback speed. 1.0 is ElevenLabs default; A0 learners
-// need a touch slower. Valid range on flash_v2_5: 0.7–1.2. The runtime ½×
+// need clearly slower. Valid range on flash_v2_5: 0.7–1.2. The runtime ½×
 // button is still available on top of this.
-const SPEED = Number(process.env.ELEVENLABS_SPEED ?? '0.9');
+const SPEED = Number(process.env.ELEVENLABS_SPEED ?? '0.8');
 const DRY_RUN = process.env.AUDIO_BUILD_DRY_RUN === '1';
 const EXT = 'mp3';
 

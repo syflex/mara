@@ -1,22 +1,9 @@
 'use client';
 
-/**
- * DrillSection — sequential multiple-choice / audio-discrimination drill.
- *
- * UX (locked-in defaults):
- *   - Order is shuffled per mount (matches "randomized" in syllabus specs).
- *   - First tap on a choice locks the answer; no retry.
- *   - Right → choice goes emerald, auto-advance after AUTO_ADVANCE_MS.
- *   - Wrong → tapped choice goes red, correct choice goes emerald, a
- *     "Volgende" button appears so the learner can sit with the answer
- *     before continuing (no autoplay-into-next-item under the cognitive
- *     wave of "wrong").
- *   - Audio items: play on mount of each item; tap-to-replay button.
- *   - After the last item: summary card with score.
- *
- * Typed-kind drills are not yet wired (no Les 02/03 need them). Adding
- * them later is a localised change inside this component.
- */
+// Sequential drill: mc (tap a choice) or typed (type the answer).
+// Both kinds: optional audio plays on item enter; right answer auto-advances
+// after AUTO_ADVANCE_MS; wrong answer locks with a "Volgende" button so the
+// learner can sit with the reveal before moving on.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DrillPayload } from '@/lib/types';
@@ -31,6 +18,10 @@ interface Props {
 
 type Result = { itemIndex: number; correct: boolean };
 
+type Answer =
+  | { kind: 'mc'; choiceIndex: number; correct: boolean }
+  | { kind: 'typed'; value: string; correct: boolean };
+
 function shuffle<T>(arr: readonly T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -38,6 +29,24 @@ function shuffle<T>(arr: readonly T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+function normalize(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function isTypedCorrect(
+  value: string,
+  expected: string,
+  variants?: string[],
+): boolean {
+  const candidates = [expected, ...(variants ?? [])];
+  return candidates.some((c) => normalize(c) === normalize(value));
 }
 
 export default function DrillSection({ lessonId, payload }: Props) {
@@ -53,23 +62,20 @@ export default function DrillSection({ lessonId, payload }: Props) {
   );
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  const [answer, setAnswer] = useState<Answer | null>(null);
   const [results, setResults] = useState<Result[]>([]);
 
   const item = items[currentIndex];
   const done = currentIndex >= items.length;
-  const locked = selectedChoice !== null;
-  const isCorrect =
-    item?.kind === 'mc' &&
-    selectedChoice !== null &&
-    item.choices[selectedChoice]?.correct === true;
+  const locked = answer !== null;
+  const isCorrect = answer?.correct === true;
 
   // Auto-play on item change (browser autoplay rules: this works after
   // the user has interacted with the page, which they have by tapping
   // into the section).
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    if (done || !item || item.kind !== 'mc' || !item.audioId) return;
+    if (done || !item?.audioId) return;
     if (!hasAudio(lessonId, item.audioId)) return;
     if (!audioRef.current) audioRef.current = new Audio();
     const el = audioRef.current;
@@ -82,14 +88,14 @@ export default function DrillSection({ lessonId, payload }: Props) {
 
   // Auto-advance on a correct answer.
   useEffect(() => {
-    if (selectedChoice === null || !isCorrect) return;
+    if (!isCorrect) return;
     const t = setTimeout(() => {
       setResults((prev) => [...prev, { itemIndex: currentIndex, correct: true }]);
       setCurrentIndex((prev) => prev + 1);
-      setSelectedChoice(null);
+      setAnswer(null);
     }, AUTO_ADVANCE_MS);
     return () => clearTimeout(t);
-  }, [selectedChoice, isCorrect, currentIndex]);
+  }, [isCorrect, currentIndex]);
 
   // Cleanup audio on unmount.
   useEffect(() => {
@@ -104,29 +110,28 @@ export default function DrillSection({ lessonId, payload }: Props) {
     return <SummaryCard correct={correct} total={items.length} />;
   }
 
-  if (!item || item.kind !== 'mc') {
-    // Typed kind isn't wired here yet — render a tiny placeholder rather
-    // than nothing, so a content authoring mistake is obvious.
-    return (
-      <p className="text-sm text-zinc-600 dark:text-zinc-300">
-        Dit drill-type wordt nog niet ondersteund.
-      </p>
-    );
+  if (!item) return null;
+
+  function handleSelectChoice(i: number) {
+    if (locked || !item || item.kind !== 'mc') return;
+    const correct = item.choices[i]?.correct === true;
+    setAnswer({ kind: 'mc', choiceIndex: i, correct });
   }
 
-  function handleSelect(i: number) {
-    if (locked) return;
-    setSelectedChoice(i);
+  function handleSubmitTyped(value: string) {
+    if (locked || !item || item.kind !== 'typed') return;
+    const correct = isTypedCorrect(value, item.expected, item.acceptVariants);
+    setAnswer({ kind: 'typed', value, correct });
   }
 
   function handleVolgende() {
     setResults((prev) => [...prev, { itemIndex: currentIndex, correct: isCorrect }]);
     setCurrentIndex((prev) => prev + 1);
-    setSelectedChoice(null);
+    setAnswer(null);
   }
 
   function replay() {
-    if (item?.kind !== 'mc' || !item.audioId) return;
+    if (!item?.audioId) return;
     if (!audioRef.current) audioRef.current = new Audio();
     const el = audioRef.current;
     el.src = audioUrl(lessonId, item.audioId);
@@ -168,31 +173,42 @@ export default function DrillSection({ lessonId, payload }: Props) {
           <AudioPromptButton onPlay={replay} disabled={!hasAudio(lessonId, item.audioId)} />
         )}
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          {item.choices.map((choice, i) => (
-            <ChoiceButton
-              key={i}
-              text={choice.text}
-              state={
-                !locked
-                  ? 'idle'
-                  : i === selectedChoice
-                    ? choice.correct
-                      ? 'right'
-                      : 'wrong'
-                    : choice.correct
-                      ? 'reveal'
-                      : 'dim'
-              }
-              onClick={() => handleSelect(i)}
-            />
-          ))}
-        </div>
+        {item.kind === 'mc' ? (
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            {item.choices.map((choice, i) => (
+              <ChoiceButton
+                key={i}
+                text={choice.text}
+                state={
+                  !locked
+                    ? 'idle'
+                    : answer?.kind === 'mc' && answer.choiceIndex === i
+                      ? choice.correct
+                        ? 'right'
+                        : 'wrong'
+                      : choice.correct
+                        ? 'reveal'
+                        : 'dim'
+                }
+                onClick={() => handleSelectChoice(i)}
+              />
+            ))}
+          </div>
+        ) : (
+          <TypedInputBlock
+            locked={locked}
+            answer={answer?.kind === 'typed' ? answer : null}
+            expected={item.expected}
+            onSubmit={handleSubmitTyped}
+          />
+        )}
 
         {locked && !isCorrect && (
           <div className="mt-5 flex items-center justify-between gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
             <p className="text-sm text-zinc-600 dark:text-zinc-300">
-              Geen probleem — de groene is goed.
+              {item.kind === 'mc'
+                ? 'Geen probleem — de groene is goed.'
+                : `Het juiste antwoord: ${item.expected}.`}
             </p>
             <button
               type="button"
@@ -225,6 +241,70 @@ function AudioPromptButton({
       <SpeakerIcon />
       {disabled ? 'Audio ontbreekt' : 'Speel klank opnieuw'}
     </button>
+  );
+}
+
+function TypedInputBlock({
+  locked,
+  answer,
+  expected,
+  onSubmit,
+}: {
+  locked: boolean;
+  answer: { value: string; correct: boolean } | null;
+  expected: string;
+  onSubmit: (value: string) => void;
+}) {
+  const [value, setValue] = useState('');
+
+  if (locked && answer) {
+    return (
+      <div
+        className={`mt-5 rounded-xl border px-4 py-3 text-center text-2xl font-semibold ${
+          answer.correct
+            ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
+            : 'border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200'
+        }`}
+      >
+        {answer.value || <span className="opacity-60">—</span>}
+        {!answer.correct && (
+          <div className="mt-1 text-base font-medium text-emerald-700 dark:text-emerald-300">
+            → {expected}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <form
+      className="mt-5 flex flex-wrap items-center gap-3"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (value.trim()) onSubmit(value);
+      }}
+    >
+      <input
+        type="text"
+        inputMode="text"
+        autoFocus
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        autoComplete="off"
+        autoCorrect="off"
+        spellCheck={false}
+        aria-label="Typ je antwoord"
+        placeholder="Typ je antwoord…"
+        className="min-h-12 min-w-0 flex-1 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-lg text-zinc-900 placeholder:text-zinc-400 focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+      />
+      <button
+        type="submit"
+        disabled={!value.trim()}
+        className="inline-flex min-h-12 items-center justify-center rounded-xl bg-orange-600 px-5 py-2 text-base font-semibold text-white transition-colors hover:bg-orange-700 active:bg-orange-800 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:disabled:bg-zinc-700 dark:disabled:text-zinc-500"
+      >
+        OK
+      </button>
+    </form>
   );
 }
 

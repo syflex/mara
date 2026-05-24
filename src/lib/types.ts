@@ -197,6 +197,9 @@ export type DrillItem =
       promptEn?: string;
       expected: string;
       acceptVariants?: string[];
+      // Audio-dictation drills: play a clip, learner types what they hear.
+      audioId?: string;
+      audioText?: string;
     };
 
 export interface DrillPayload {

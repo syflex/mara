@@ -118,5 +118,30 @@
     "dialoog-u-l4": "mp3",
     "spreken-ans-ik-heet": "mp3",
     "spreken-ans-mijn-naam": "mp3"
+  },
+  "a0-les-07": {
+    "num-nul": "mp3",
+    "num-een": "mp3",
+    "num-twee": "mp3",
+    "num-drie": "mp3",
+    "num-vier": "mp3",
+    "num-vijf": "mp3",
+    "num-zes": "mp3",
+    "num-zeven": "mp3",
+    "num-acht": "mp3",
+    "num-negen": "mp3",
+    "num-tien": "mp3",
+    "num-elf": "mp3",
+    "num-twaalf": "mp3",
+    "num-dertien": "mp3",
+    "num-veertien": "mp3",
+    "num-vijftien": "mp3",
+    "num-zestien": "mp3",
+    "num-zeventien": "mp3",
+    "num-achttien": "mp3",
+    "num-negentien": "mp3",
+    "num-twintig": "mp3",
+    "tel-0-tot-10": "mp3",
+    "tel-11-tot-20": "mp3"
   }
 }
