@@ -111,6 +111,129 @@ export const A0_LES_02: Lesson = {
       },
     },
     {
+      id: 'drill-1',
+      type: 'drill',
+      payload: {
+        intro:
+          'Tien voorbeelden uit de klanken-sectie. Luister, tik de juiste klank-groep. Eerste tik telt — wees rustig.',
+        items: [
+          // Audio reused from klanken-1 examples; the walker dedupes by
+          // audioId so no extra clips get generated. The drill payload
+          // omits audioText for these (it's covered by the klanken section).
+          {
+            kind: 'mc',
+            audioId: 'klank-g-gas',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'g', correct: true },
+              { text: 'sch', correct: false },
+              { text: 'ij', correct: false },
+              { text: 'j', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-ij-ijs',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'ij', correct: true },
+              { text: 'i', correct: false },
+              { text: 'j', correct: false },
+              { text: 'y', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-sch-school',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'sch', correct: true },
+              { text: 's', correct: false },
+              { text: 'ch', correct: false },
+              { text: 'g', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-j-ja',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'j (als "y")', correct: true },
+              { text: 'ij', correct: false },
+              { text: 'g', correct: false },
+              { text: 'ch', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-ch-lachen',
+            promptNl: 'Welke klank zit in het midden?',
+            choices: [
+              { text: 'ch', correct: true },
+              { text: 'sch', correct: false },
+              { text: 'k', correct: false },
+              { text: 's', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-g-gouda',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'g', correct: true },
+              { text: 'k', correct: false },
+              { text: 'ch', correct: false },
+              { text: 'sch', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-sch-scheveningen',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'sch', correct: true },
+              { text: 'ch', correct: false },
+              { text: 's', correct: false },
+              { text: 'g', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-ij-tijd',
+            promptNl: 'Welke klank zit in het midden?',
+            choices: [
+              { text: 'ij', correct: true },
+              { text: 'i', correct: false },
+              { text: 'ee', correct: false },
+              { text: 'ie', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-j-jasje',
+            promptNl: 'Welke klank hoor je aan het begin?',
+            choices: [
+              { text: 'j (als "y")', correct: true },
+              { text: 'ch', correct: false },
+              { text: 'sch', correct: false },
+              { text: 'g', correct: false },
+            ],
+          },
+          {
+            kind: 'mc',
+            audioId: 'klank-ch-acht',
+            promptNl: 'Welke klank hoor je aan het einde?',
+            choices: [
+              { text: 'ch', correct: true },
+              { text: 'k', correct: false },
+              { text: 't', correct: false },
+              { text: 'g', correct: false },
+            ],
+          },
+        ],
+      },
+    },
+    {
       id: 'spreken-1',
       type: 'spreken',
       payload: {

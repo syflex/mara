@@ -37,16 +37,21 @@ export default function Navbar() {
           aria-label="MARA home"
         >
           <Image
-            src="/mara-logo.PNG"
-            alt="MARA"
+            src="/logo.PNG"
+            alt=""
             width={32}
             height={32}
             priority
             className="rounded"
           />
-          <span className="font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-            MARA
-          </span>
+          <Image
+            src="/wordmark.PNG"
+            alt=""
+            width={96}
+            height={32}
+            priority
+            className="h-8 w-24 object-cover"
+          />
         </Link>
 
         <div className="flex items-center gap-1">

@@ -174,8 +174,17 @@ export interface ConjugatiePayload {
 export type DrillItem =
   | {
       kind: 'mc';
-      promptNl: string;
+      // promptNl optional — audio-prompted drills can render without text.
+      promptNl?: string;
       promptEn?: string;
+      // Audio-prompted MC: tap the choice matching what you hear.
+      //   audioId  — references an audio clip in this lesson's audio set
+      //   audioText — TTS source; only needed if no other section in the
+      //               same lesson already declares this audioId. The audio
+      //               walker dedupes across sections, so klanken examples
+      //               can be reused by drill items without re-declaring.
+      audioId?: string;
+      audioText?: string;
       choices: { text: string; correct: boolean }[];
     }
   | {

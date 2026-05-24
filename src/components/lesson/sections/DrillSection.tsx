@@ -1,0 +1,346 @@
+'use client';
+
+/**
+ * DrillSection — sequential multiple-choice / audio-discrimination drill.
+ *
+ * UX (locked-in defaults):
+ *   - Order is shuffled per mount (matches "randomized" in syllabus specs).
+ *   - First tap on a choice locks the answer; no retry.
+ *   - Right → choice goes emerald, auto-advance after AUTO_ADVANCE_MS.
+ *   - Wrong → tapped choice goes red, correct choice goes emerald, a
+ *     "Volgende" button appears so the learner can sit with the answer
+ *     before continuing (no autoplay-into-next-item under the cognitive
+ *     wave of "wrong").
+ *   - Audio items: play on mount of each item; tap-to-replay button.
+ *   - After the last item: summary card with score.
+ *
+ * Typed-kind drills are not yet wired (no Les 02/03 need them). Adding
+ * them later is a localised change inside this component.
+ */
+
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { DrillItem, DrillPayload } from '@/lib/types';
+import { audioUrl, hasAudio } from '@/lib/audio';
+
+const AUTO_ADVANCE_MS = 800;
+
+interface Props {
+  lessonId: string;
+  payload: DrillPayload;
+}
+
+type Result = { itemIndex: number; correct: boolean };
+
+function shuffle<T>(arr: readonly T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+export default function DrillSection({ lessonId, payload }: Props) {
+  // Shuffle once per mount. The empty deps mean a fresh shuffle on
+  // remount but a stable order during the session.
+  const items = useMemo(() => shuffle(payload.items), [payload.items]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
+  const [results, setResults] = useState<Result[]>([]);
+
+  const item = items[currentIndex];
+  const done = currentIndex >= items.length;
+  const locked = selectedChoice !== null;
+  const isCorrect =
+    item?.kind === 'mc' &&
+    selectedChoice !== null &&
+    item.choices[selectedChoice]?.correct === true;
+
+  // Auto-play on item change (browser autoplay rules: this works after
+  // the user has interacted with the page, which they have by tapping
+  // into the section).
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (done || !item || item.kind !== 'mc' || !item.audioId) return;
+    if (!hasAudio(lessonId, item.audioId)) return;
+    if (!audioRef.current) audioRef.current = new Audio();
+    const el = audioRef.current;
+    el.src = audioUrl(lessonId, item.audioId);
+    el.currentTime = 0;
+    el.play().catch(() => {
+      // Autoplay blocked — that's fine, the tap-to-replay button stays.
+    });
+  }, [currentIndex, done, item, lessonId]);
+
+  // Auto-advance on a correct answer.
+  useEffect(() => {
+    if (selectedChoice === null || !isCorrect) return;
+    const t = setTimeout(() => {
+      setResults((prev) => [...prev, { itemIndex: currentIndex, correct: true }]);
+      setCurrentIndex((prev) => prev + 1);
+      setSelectedChoice(null);
+    }, AUTO_ADVANCE_MS);
+    return () => clearTimeout(t);
+  }, [selectedChoice, isCorrect, currentIndex]);
+
+  // Cleanup audio on unmount.
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+      audioRef.current = null;
+    };
+  }, []);
+
+  if (done) {
+    const correct = results.filter((r) => r.correct).length;
+    return <SummaryCard correct={correct} total={items.length} />;
+  }
+
+  if (!item || item.kind !== 'mc') {
+    // Typed kind isn't wired here yet — render a tiny placeholder rather
+    // than nothing, so a content authoring mistake is obvious.
+    return (
+      <p className="text-sm text-zinc-600 dark:text-zinc-300">
+        Dit drill-type wordt nog niet ondersteund.
+      </p>
+    );
+  }
+
+  function handleSelect(i: number) {
+    if (locked) return;
+    setSelectedChoice(i);
+  }
+
+  function handleVolgende() {
+    setResults((prev) => [...prev, { itemIndex: currentIndex, correct: isCorrect }]);
+    setCurrentIndex((prev) => prev + 1);
+    setSelectedChoice(null);
+  }
+
+  function replay() {
+    if (item?.kind !== 'mc' || !item.audioId) return;
+    if (!audioRef.current) audioRef.current = new Audio();
+    const el = audioRef.current;
+    el.src = audioUrl(lessonId, item.audioId);
+    el.currentTime = 0;
+    el.play().catch(() => {});
+  }
+
+  return (
+    <div className="space-y-4">
+      {payload.intro && currentIndex === 0 && (
+        <p className="px-1 text-sm text-zinc-600 dark:text-zinc-300">
+          {payload.intro}
+        </p>
+      )}
+
+      <ProgressDots
+        total={items.length}
+        currentIndex={currentIndex}
+        results={results}
+      />
+
+      <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+          Item {currentIndex + 1} van {items.length}
+        </p>
+
+        {item.promptNl && (
+          <h3 className="mt-2 text-lg font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
+            {item.promptNl}
+          </h3>
+        )}
+        {item.promptEn && (
+          <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+            {item.promptEn}
+          </p>
+        )}
+
+        {item.audioId && (
+          <AudioPromptButton onPlay={replay} disabled={!hasAudio(lessonId, item.audioId)} />
+        )}
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {item.choices.map((choice, i) => (
+            <ChoiceButton
+              key={i}
+              text={choice.text}
+              state={
+                !locked
+                  ? 'idle'
+                  : i === selectedChoice
+                    ? choice.correct
+                      ? 'right'
+                      : 'wrong'
+                    : choice.correct
+                      ? 'reveal'
+                      : 'dim'
+              }
+              onClick={() => handleSelect(i)}
+            />
+          ))}
+        </div>
+
+        {locked && !isCorrect && (
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+            <p className="text-sm text-zinc-600 dark:text-zinc-300">
+              Geen probleem — de groene is goed.
+            </p>
+            <button
+              type="button"
+              onClick={handleVolgende}
+              className="inline-flex min-h-10 items-center rounded-full bg-zinc-800 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-zinc-900 active:bg-black dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-white"
+            >
+              Volgende →
+            </button>
+          </div>
+        )}
+      </article>
+    </div>
+  );
+}
+
+function AudioPromptButton({
+  onPlay,
+  disabled,
+}: {
+  onPlay: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onPlay}
+      disabled={disabled}
+      className="mt-5 flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-orange-50 px-6 py-3 text-base font-semibold text-orange-700 ring-1 ring-orange-200 transition-colors hover:bg-orange-100 active:bg-orange-200 disabled:opacity-50 dark:bg-orange-950/30 dark:text-orange-300 dark:ring-orange-900/60 dark:hover:bg-orange-950/50 dark:active:bg-orange-950"
+    >
+      <SpeakerIcon />
+      {disabled ? 'Audio ontbreekt' : 'Speel klank opnieuw'}
+    </button>
+  );
+}
+
+type ChoiceState = 'idle' | 'right' | 'wrong' | 'reveal' | 'dim';
+
+function ChoiceButton({
+  text,
+  state,
+  onClick,
+}: {
+  text: string;
+  state: ChoiceState;
+  onClick: () => void;
+}) {
+  const styles: Record<ChoiceState, string> = {
+    idle:
+      'bg-white text-zinc-900 ring-zinc-200 hover:bg-zinc-50 active:bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 dark:hover:bg-zinc-700 dark:active:bg-zinc-600',
+    right:
+      'bg-emerald-100 text-emerald-900 ring-emerald-400 dark:bg-emerald-950/60 dark:text-emerald-200 dark:ring-emerald-700',
+    wrong:
+      'bg-red-100 text-red-900 ring-red-400 dark:bg-red-950/60 dark:text-red-200 dark:ring-red-700',
+    reveal:
+      'bg-emerald-50 text-emerald-800 ring-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:ring-emerald-800',
+    dim: 'bg-white text-zinc-400 ring-zinc-200 opacity-60 dark:bg-zinc-800 dark:text-zinc-500 dark:ring-zinc-700',
+  };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={state !== 'idle'}
+      className={`flex min-h-14 items-center justify-center rounded-xl px-4 py-3 text-base font-semibold ring-1 transition-all ${styles[state]}`}
+    >
+      {text}
+    </button>
+  );
+}
+
+function ProgressDots({
+  total,
+  currentIndex,
+  results,
+}: {
+  total: number;
+  currentIndex: number;
+  results: Result[];
+}) {
+  return (
+    <div className="flex items-center justify-center gap-1.5">
+      {Array.from({ length: total }).map((_, i) => {
+        const result = results.find((r) => r.itemIndex === i);
+        const active = i === currentIndex;
+        const cls = result
+          ? result.correct
+            ? 'bg-emerald-500'
+            : 'bg-red-500'
+          : active
+            ? 'bg-orange-600'
+            : 'bg-zinc-200 dark:bg-zinc-700';
+        const widthCls = active && !result ? 'w-6' : 'w-1.5';
+        return (
+          <span
+            key={i}
+            aria-hidden
+            className={`h-1.5 rounded-full transition-all ${widthCls} ${cls}`}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function SummaryCard({ correct, total }: { correct: number; total: number }) {
+  const pct = Math.round((correct / total) * 100);
+  const tone =
+    pct >= 80
+      ? 'emerald'
+      : pct >= 50
+        ? 'amber'
+        : 'zinc';
+  const toneClasses: Record<string, string> = {
+    emerald:
+      'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-200',
+    amber:
+      'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200',
+    zinc: 'border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100',
+  };
+  const message =
+    pct >= 80
+      ? 'Mooi werk — je hebt het door.'
+      : pct >= 50
+        ? 'Goede start — herhaal de les nog een keer voor de fijnafstemming.'
+        : 'Geen zorgen — luister de klanken-sectie nog eens en probeer opnieuw.';
+  return (
+    <div className={`rounded-3xl border p-8 text-center ${toneClasses[tone]}`}>
+      <p className="text-xs font-semibold uppercase tracking-wider opacity-70">
+        Drill voltooid
+      </p>
+      <p className="mt-3 text-4xl font-bold tabular-nums">
+        {correct}
+        <span className="text-2xl opacity-60"> / {total}</span>
+      </p>
+      <p className="mt-1 text-sm opacity-80">{pct}%</p>
+      <p className="mx-auto mt-4 max-w-xs text-sm leading-relaxed">{message}</p>
+    </div>
+  );
+}
+
+function SpeakerIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M11 5 6 9H2v6h4l5 4Z" fill="currentColor" stroke="none" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}

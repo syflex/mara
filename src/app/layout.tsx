@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: 'MARA — Dutch Inburgering A2',
   description: 'Jouw taal. Jouw toekomst. Personal Inburgering A2 prep.',
   manifest: '/manifest.json',
+  icons: {
+    icon: [{ url: '/logo.PNG', sizes: '1254x1254', type: 'image/png' }],
+    apple: [{ url: '/logo.PNG', sizes: '1254x1254', type: 'image/png' }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

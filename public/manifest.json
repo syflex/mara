@@ -9,7 +9,7 @@
   "theme_color": "#ea580c",
   "icons": [
     {
-      "src": "/mara-logo.PNG",
+      "src": "/logo.PNG",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"

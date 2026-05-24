@@ -39,6 +39,16 @@ export function itemsFromSection(
           .filter((ex) => ex.audioId)
           .map((ex) => ({ audioId: ex.audioId as string, text: ex.nl })),
       );
+    case 'drill':
+      // Only contribute audio for mc items that declare BOTH id and text.
+      // Items that reference an audioId already covered by a klanken/etc.
+      // section dedupe via `collectAudio`'s seen-set and shouldn't repeat
+      // their text here.
+      return section.payload.items.flatMap((item) =>
+        item.kind === 'mc' && item.audioId && item.audioText
+          ? [{ audioId: item.audioId, text: item.audioText }]
+          : [],
+      );
     default:
       return [];
   }
