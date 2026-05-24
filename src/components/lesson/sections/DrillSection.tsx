@@ -41,9 +41,16 @@ function shuffle<T>(arr: readonly T[]): T[] {
 }
 
 export default function DrillSection({ lessonId, payload }: Props) {
-  // Shuffle once per mount. The empty deps mean a fresh shuffle on
-  // remount but a stable order during the session.
-  const items = useMemo(() => shuffle(payload.items), [payload.items]);
+  // Shuffle items AND each mc item's choices once per mount. Authors
+  // habitually write `correct: true` first; without choice shuffle the
+  // right answer always lands top-left.
+  const items = useMemo(
+    () =>
+      shuffle(payload.items).map((item) =>
+        item.kind === 'mc' ? { ...item, choices: shuffle(item.choices) } : item,
+      ),
+    [payload.items],
+  );
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);

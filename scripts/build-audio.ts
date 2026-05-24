@@ -50,6 +50,10 @@ const API_KEY = process.env.ELEVENLABS_API_KEY;
 // `pnpm audio:voices` to see what your specific key can access.
 const VOICE_ID = process.env.ELEVENLABS_VOICE_ID ?? '60CwgZt94Yf7yYIXMDDe';
 const MODEL_ID = process.env.ELEVENLABS_MODEL_ID ?? 'eleven_flash_v2_5';
+// Generation-time playback speed. 1.0 is ElevenLabs default; A0 learners
+// need a touch slower. Valid range on flash_v2_5: 0.7–1.2. The runtime ½×
+// button is still available on top of this.
+const SPEED = Number(process.env.ELEVENLABS_SPEED ?? '0.9');
 const DRY_RUN = process.env.AUDIO_BUILD_DRY_RUN === '1';
 const EXT = 'mp3';
 
@@ -66,7 +70,11 @@ async function tts(text: string): Promise<Buffer> {
       body: JSON.stringify({
         text,
         model_id: MODEL_ID,
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+        voice_settings: {
+          stability: 0.5,
+          similarity_boost: 0.75,
+          speed: SPEED,
+        },
       }),
     },
   );
@@ -135,7 +143,7 @@ async function main() {
 
   console.log(
     `\nDone. Generated ${generated}, skipped ${skipped}, failed ${failed}.` +
-      `\nVoice: ${VOICE_ID}  Model: ${MODEL_ID}`,
+      `\nVoice: ${VOICE_ID}  Model: ${MODEL_ID}  Speed: ${SPEED}`,
   );
   if (failed > 0) process.exit(1);
 }
