@@ -70,5 +70,18 @@
     "spreken-paar-i": "mp3",
     "spreken-paar-o": "mp3",
     "spreken-paar-u": "mp3"
+  },
+  "a0-les-04": {
+    "klank-ij-ijs": "mp3",
+    "klank-ei-klein": "mp3",
+    "klank-ui-huis": "mp3",
+    "klank-eu-leuk": "mp3",
+    "klank-oe-boek": "mp3",
+    "klank-ou-koud": "mp3",
+    "klank-ei-trein": "mp3",
+    "klank-ij-mijn": "mp3",
+    "klank-ui-tuin": "mp3",
+    "klank-oe-goed": "mp3",
+    "luisteren-zin-digrafen": "mp3"
   }
 }

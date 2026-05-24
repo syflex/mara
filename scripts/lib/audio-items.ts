@@ -49,6 +49,14 @@ export function itemsFromSection(
           ? [{ audioId: item.audioId, text: item.audioText }]
           : [],
       );
+    case 'luisteren':
+      // Single clip per section; the transcript is the TTS source.
+      return [
+        {
+          audioId: section.payload.audioId,
+          text: section.payload.transcriptNl,
+        },
+      ];
     default:
       return [];
   }

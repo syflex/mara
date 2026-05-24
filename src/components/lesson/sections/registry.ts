@@ -20,6 +20,7 @@ import WoordenSection from './WoordenSection';
 import SprekenSection from './SprekenSection';
 import MiniDialoogSection from './MiniDialoogSection';
 import DrillSection from './DrillSection';
+import LuisterenSection from './LuisterenSection';
 
 type RegistryEntry<K extends SectionType> = {
   label: string;
@@ -33,11 +34,11 @@ export const SECTION_REGISTRY: { [K in SectionType]: RegistryEntry<K> } = {
   spreken: { label: 'Spreken', component: SprekenSection },
   'mini-dialoog': { label: 'Mini-dialoog', component: MiniDialoogSection },
   drill: { label: 'Drill', component: DrillSection },
+  luisteren: { label: 'Luisteren', component: LuisterenSection },
   // Payload shapes exist (see SectionPayloadMap); renderers TBD.
   'de-het': { label: 'De / het' },
   conjugatie: { label: 'Conjugatie' },
   zinsbouw: { label: 'Zinsbouw' },
-  luisteren: { label: 'Luisteren' },
   schrijven: { label: 'Schrijven' },
 };
 

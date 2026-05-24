@@ -19,7 +19,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { DrillItem, DrillPayload } from '@/lib/types';
+import type { DrillPayload } from '@/lib/types';
 import { audioUrl, hasAudio } from '@/lib/audio';
 
 const AUTO_ADVANCE_MS = 800;
