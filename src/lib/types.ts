@@ -163,6 +163,10 @@ export interface ConjugatieItem {
   pronoun: string; // "ik", "jij/je", "u", "hij/zij/het", "wij", "jullie", "zij"
   expected: string; // "ben", "bent", "is", …
   hint?: string;
+  // Optional: play the full pronoun+form (e.g. "ik ben") as a model.
+  // audioText is the TTS source — usually pronoun + ' ' + expected.
+  audioId?: string;
+  audioText?: string;
 }
 
 export interface ConjugatiePayload {

@@ -57,6 +57,13 @@ export function itemsFromSection(
           text: section.payload.transcriptNl,
         },
       ];
+    case 'conjugatie':
+      // Optional per-row audio; both audioId and audioText must be present.
+      return section.payload.items.flatMap((item) =>
+        item.audioId && item.audioText
+          ? [{ audioId: item.audioId, text: item.audioText }]
+          : [],
+      );
     default:
       return [];
   }
