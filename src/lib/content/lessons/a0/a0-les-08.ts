@@ -19,7 +19,7 @@ export const A0_LES_08: Lesson = {
           { kind: 'heading', text: 'Tienvouden — 20 t/m 100' },
           {
             kind: 'paragraph',
-            text: 'De tientallen volgen geen perfect patroon — er zijn een paar lastige (tachtig in plaats van "achttig", zeventig in plaats van "zeventig"). Leer ze als een rij. Honderd is het ronde getal aan het eind.',
+            text: 'Vier tienvouden zijn onregelmatig: twintig (al uit Les 07), dertig (niet "drietig"), veertig (niet "viertig") en tachtig (niet "achttig"). De rest volgt het patroon: stam + -tig (vijftig, zestig, zeventig, negentig). Honderd is het ronde getal aan het eind.',
           },
           {
             kind: 'list',
@@ -30,7 +30,7 @@ export const A0_LES_08: Lesson = {
               '50 — vijftig',
               '60 — zestig',
               '70 — zeventig',
-              '80 — tachtig (let op: niet "achttig")',
+              '80 — tachtig',
               '90 — negentig',
               '100 — honderd',
             ],
@@ -191,8 +191,8 @@ export const A0_LES_08: Lesson = {
           },
           {
             id: 'l2',
-            nl: 'Nul-zes, twaalf, drieënveertig, zesenvijftig, achtenzeventig.',
-            en: '06 12 43 56 78 (in pairs).',
+            nl: 'Nul-zes, twaalf, vierendertig, zesenvijftig, achtenzeventig.',
+            en: '06 12 34 56 78 (same number, in pairs).',
             audioId: 'spreken-tel-paren',
           },
         ],

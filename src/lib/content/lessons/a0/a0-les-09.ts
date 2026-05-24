@@ -101,9 +101,9 @@ export const A0_LES_09: Lesson = {
             expected: 'Hij komt uit Nederland',
           },
           {
-            promptEn: 'We live in the city.',
-            tiles: ['Wij', 'wonen', 'in', 'de', 'stad'],
-            expected: 'Wij wonen in de stad',
+            promptEn: 'I live on Hoofdstraat. (English "on" → Dutch "in")',
+            tiles: ['Ik', 'woon', 'in', 'de', 'Hoofdstraat'],
+            expected: 'Ik woon in de Hoofdstraat',
           },
           {
             promptEn: 'Where do you live?',

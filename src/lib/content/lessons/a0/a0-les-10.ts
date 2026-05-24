@@ -228,8 +228,8 @@ export const A0_LES_10: Lesson = {
         lines: [
           {
             id: 'l1',
-            nl: 'Hallo, mijn naam is Tom. Ik ben drieënveertig jaar oud. Ik woon in Den Haag en ik kom uit Nederland.',
-            en: "Hi, my name is Tom. I am 43 years old. I live in The Hague and I come from the Netherlands.",
+            nl: 'Hallo, mijn naam is Tom. Ik ben drieënveertig jaar oud. Ik woon in Den Haag en ik kom uit Nederland. Mijn telefoonnummer is nul-zes, twaalf, vierendertig, zesenvijftig, achtenzeventig.',
+            en: "Hi, my name is Tom. I am 43 years old. I live in The Hague and I come from the Netherlands. My phone number is 06 12 34 56 78.",
             audioId: 'spreken-intro-tom-vol',
           },
         ],

@@ -42,6 +42,7 @@ function SchrijvenCard({ item, index }: { item: SchrijvenItem; index: number }) 
 
   function tryAgain() {
     setSubmitted(false);
+    setValue('');
   }
 
   return (
