@@ -229,8 +229,8 @@ export const A0_LES_02: Lesson = {
               {
                 id: 'g4',
                 speaker: 'Klant',
-                nl: 'D, E, spatie, V, R, I, E, S.',
-                en: 'D, E, space, V, R, I, E, S.',
+                nl: 'D, E, V, R, I, E, S.',
+                en: 'D, E, V, R, I, E, S.',
                 audioId: 'dialoog-spell-gemeente-4',
               },
             ],

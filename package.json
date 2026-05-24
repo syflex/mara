@@ -5,8 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "prebuild": "npm run validate",
     "start": "next start",
     "lint": "eslint",
+    "validate": "tsx scripts/validate.ts",
     "audio:build": "tsx scripts/build-audio.ts",
     "audio:build:say": "tsx scripts/build-audio-say.ts",
     "audio:voices": "tsx scripts/list-voices.ts"
