@@ -33,6 +33,12 @@ export function itemsFromSection(
           .filter((l) => l.audioId)
           .map((l) => ({ audioId: l.audioId as string, text: l.nl })),
       );
+    case 'klanken':
+      return section.payload.sounds.flatMap((sound) =>
+        sound.examples
+          .filter((ex) => ex.audioId)
+          .map((ex) => ({ audioId: ex.audioId as string, text: ex.nl })),
+      );
     default:
       return [];
   }

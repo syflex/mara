@@ -1,7 +1,8 @@
 import type { Lesson } from '@/lib/types';
 import { A0_LES_01 } from './a0/a0-les-01';
+import { A0_LES_02 } from './a0/a0-les-02';
 
-export const LESSONS: readonly Lesson[] = [A0_LES_01].sort(
+export const LESSONS: readonly Lesson[] = [A0_LES_01, A0_LES_02].sort(
   (a, b) => a.order - b.order,
 );
 
