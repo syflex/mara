@@ -12,7 +12,7 @@ export const AUDIO = {
   /** Playback rates exposed via the per-clip [🔊 | ½×] button group. */
   rates: {
     normal: 1,
-    slow: 0.5,
+    slow: 0.70,
   },
 } as const;
 

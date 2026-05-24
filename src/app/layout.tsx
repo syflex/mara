@@ -23,8 +23,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="nl" className="h-full">
+    // translate="no" + the Google notranslate meta tell Chrome/Edge/Safari
+    // not to offer auto-translate. lang="nl" stays correct for screen
+    // readers, hyphenation, and search.
+    <html lang="nl" translate="no" className="h-full">
       <head>
+        <meta name="google" content="notranslate" />
         {/* Sets the dark class on <html> before React hydrates — avoids
             flash of wrong theme. Reads from localStorage (explicit choice)
             with a fallback to prefers-color-scheme. */}

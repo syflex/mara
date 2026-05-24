@@ -55,7 +55,7 @@ export const A0_LES_01: Lesson = {
       type: 'woorden',
       payload: {
         intro:
-          'Tap 🔊 to hear each greeting. Watch for the formality tag — informal vs formal makes a real difference in Dutch.',
+          'Tap the speaker to hear each greeting (or 0.5× for slow). Watch for the formality tag — informal vs formal makes a real difference in Dutch.',
         words: [
           {
             nl: 'hallo',
