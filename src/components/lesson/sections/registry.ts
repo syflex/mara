@@ -24,6 +24,7 @@ import LuisterenSection from './LuisterenSection';
 import ConjugatieSection from './ConjugatieSection';
 import ZinsbouwSection from './ZinsbouwSection';
 import SchrijvenSection from './SchrijvenSection';
+import DeHetSection from './DeHetSection';
 
 type RegistryEntry<K extends SectionType> = {
   label: string;
@@ -41,8 +42,7 @@ export const SECTION_REGISTRY: { [K in SectionType]: RegistryEntry<K> } = {
   conjugatie: { label: 'Vervoeging', component: ConjugatieSection },
   zinsbouw: { label: 'Zinsbouw', component: ZinsbouwSection },
   schrijven: { label: 'Schrijven', component: SchrijvenSection },
-  // Payload shapes exist (see SectionPayloadMap); renderers TBD.
-  'de-het': { label: 'De / het' },
+  'de-het': { label: 'De / het', component: DeHetSection },
 };
 
 export function sectionLabel(type: SectionType): string {
