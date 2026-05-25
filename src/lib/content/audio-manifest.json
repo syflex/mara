@@ -200,5 +200,30 @@
     "review-num-zevenenveertig": "mp3",
     "luisteren-intro-maria": "mp3",
     "spreken-intro-tom-vol": "mp3"
+  },
+  "a0-les-11": {
+    "hebben-ik-heb": "mp3",
+    "hebben-jij-hebt": "mp3",
+    "hebben-u-hebt": "mp3",
+    "hebben-hij-heeft": "mp3",
+    "hebben-wij-hebben": "mp3",
+    "hebben-jullie-hebben": "mp3",
+    "hebben-zij-hebben": "mp3",
+    "honger": "mp3",
+    "dorst": "mp3",
+    "pijn": "mp3",
+    "tijd": "mp3",
+    "koud": "mp3",
+    "warm": "mp3",
+    "spreken-staat-honger": "mp3",
+    "spreken-staat-dorst": "mp3",
+    "spreken-staat-pijn": "mp3",
+    "spreken-staat-tijd": "mp3",
+    "spreken-staat-koud": "mp3",
+    "spreken-staat-warm": "mp3",
+    "dialoog-staat-l1": "mp3",
+    "dialoog-staat-l2": "mp3",
+    "dialoog-staat-l3": "mp3",
+    "dialoog-staat-l4": "mp3"
   }
 }
