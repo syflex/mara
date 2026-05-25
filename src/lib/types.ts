@@ -80,8 +80,12 @@ export interface UitlegPayload {
 export interface Woord {
   nl: string;
   en: string;
+  partOfSpeech?: PartOfSpeech;
   gender?: 'de' | 'het';
   formality?: 'informeel' | 'formeel';
+  // Optional stable disambiguator for homographs that need separate SRS cards
+  // despite sharing the same Dutch surface form.
+  srsKey?: string;
   audioId?: string;
   imageUrl?: string;
   exampleNl?: string;
@@ -278,7 +282,9 @@ export type LessonSection = {
 // shape — components write `SectionProps<'woorden'>` and get full type safety.
 export interface SectionProps<K extends SectionType> {
   lessonId: string;
+  sectionId: string;
   payload: SectionPayloadMap[K];
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
 export interface Lesson {
@@ -306,4 +312,58 @@ export interface LessonProgress {
   completedAt?: number;
   sectionIdsCompleted: string[];
   updatedAt: number;
+}
+
+export interface LessonSectionResult {
+  id: string;
+  lessonId: string;
+  sectionId: string;
+  sectionType: SectionType;
+  completedAt: number;
+  updatedAt: number;
+  score?: number;
+  total?: number;
+  evidence?: string;
+}
+
+export interface WritingAttempt {
+  id: string;
+  lessonId: string;
+  sectionId: string;
+  itemIndex: number;
+  promptEn: string;
+  answer: string;
+  expected: string;
+  submittedAt: number;
+}
+
+export interface ListeningAttempt {
+  id: string;
+  lessonId: string;
+  sectionId: string;
+  questionIndex: number;
+  questionNl: string;
+  answer: string;
+  expected: string;
+  correct: boolean;
+  submittedAt: number;
+}
+
+export interface SpeakingAttempt {
+  id: string;
+  lessonId: string;
+  sectionId: string;
+  lineId: string;
+  lineNl: string;
+  blob: Blob;
+  mimeType: string;
+  durationMs: number;
+  recordedAt: number;
+}
+
+export interface SectionCompletion {
+  isComplete: boolean;
+  score?: number;
+  total?: number;
+  evidence?: string;
 }

@@ -3,16 +3,59 @@
 // Typed conjugation drill: one row per pronoun, learner types the form.
 // Optional audio model per row plays the full "pronoun form" after answering.
 
-import { useState } from 'react';
-import type { ConjugatieItem, ConjugatiePayload } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { saveSectionResult } from '@/lib/practice';
+import type {
+  ConjugatieItem,
+  ConjugatiePayload,
+  SectionCompletion,
+} from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: ConjugatiePayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
-export default function ConjugatieSection({ lessonId, payload }: Props) {
+export default function ConjugatieSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
+  const [answers, setAnswers] = useState<Record<number, boolean>>({});
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(Boolean).length;
+  const complete =
+    payload.items.length > 0 && answeredCount === payload.items.length;
+
+  useEffect(() => {
+    const completion = {
+      isComplete: complete,
+      score: correctCount,
+      total: payload.items.length,
+      evidence: complete ? `${payload.items.length} vervoegingen beantwoord.` : undefined,
+    };
+    onCompletionChange?.(completion);
+    if (complete) {
+      void saveSectionResult({
+        lessonId,
+        sectionId,
+        sectionType: 'conjugatie',
+        completion,
+      });
+    }
+  }, [
+    complete,
+    correctCount,
+    lessonId,
+    onCompletionChange,
+    payload.items.length,
+    sectionId,
+  ]);
+
   return (
     <div className="space-y-4">
       {payload.intro && (
@@ -28,7 +71,13 @@ export default function ConjugatieSection({ lessonId, payload }: Props) {
         <ul className="mt-3 space-y-2">
           {payload.items.map((item, i) => (
             <li key={i}>
-              <ConjugatieRow lessonId={lessonId} item={item} />
+              <ConjugatieRow
+                lessonId={lessonId}
+                item={item}
+                onAnswered={(correct) =>
+                  setAnswers((prev) => ({ ...prev, [i]: correct }))
+                }
+              />
             </li>
           ))}
         </ul>
@@ -51,9 +100,11 @@ type Verdict = null | 'correct' | 'wrong';
 function ConjugatieRow({
   lessonId,
   item,
+  onAnswered,
 }: {
   lessonId: string;
   item: ConjugatieItem;
+  onAnswered: (correct: boolean) => void;
 }) {
   const [value, setValue] = useState('');
   const [verdict, setVerdict] = useState<Verdict>(null);
@@ -64,6 +115,7 @@ function ConjugatieRow({
     const candidates = [item.expected, ...(item.acceptVariants ?? [])];
     const correct = candidates.some((candidate) => normalize(value) === normalize(candidate));
     setVerdict(correct ? 'correct' : 'wrong');
+    onAnswered(correct);
   }
 
   return (

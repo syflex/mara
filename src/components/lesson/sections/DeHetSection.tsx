@@ -5,14 +5,17 @@
 // auto-advance on right, "Volgende" on wrong, summary at the end.
 
 import { useEffect, useMemo, useState } from 'react';
-import type { DeHetPayload } from '@/lib/types';
+import { saveSectionResult } from '@/lib/practice';
+import type { DeHetPayload, SectionCompletion } from '@/lib/types';
 import { DRILL } from '@/lib/config';
 
 const { autoAdvanceMs: AUTO_ADVANCE_MS } = DRILL;
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: DeHetPayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
 type Gender = 'de' | 'het';
@@ -27,7 +30,12 @@ function shuffle<T>(arr: readonly T[]): T[] {
   return a;
 }
 
-export default function DeHetSection({ payload }: Props) {
+export default function DeHetSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
   const items = useMemo(() => shuffle(payload.items), [payload.items]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [picked, setPicked] = useState<Gender | null>(null);
@@ -37,6 +45,7 @@ export default function DeHetSection({ payload }: Props) {
   const done = currentIndex >= items.length;
   const locked = picked !== null;
   const isCorrect = picked !== null && item?.gender === picked;
+  const correctCount = results.filter((r) => r.correct).length;
 
   useEffect(() => {
     if (!isCorrect) return;
@@ -48,9 +57,39 @@ export default function DeHetSection({ payload }: Props) {
     return () => clearTimeout(t);
   }, [isCorrect, currentIndex]);
 
+  useEffect(() => {
+    if (!done) {
+      onCompletionChange?.({
+        isComplete: false,
+        score: correctCount,
+        total: items.length,
+      });
+      return;
+    }
+    const completion = {
+      isComplete: true,
+      score: correctCount,
+      total: items.length,
+      evidence: `${items.length} de/het-items beantwoord.`,
+    };
+    onCompletionChange?.(completion);
+    void saveSectionResult({
+      lessonId,
+      sectionId,
+      sectionType: 'de-het',
+      completion,
+    });
+  }, [
+    correctCount,
+    done,
+    items.length,
+    lessonId,
+    onCompletionChange,
+    sectionId,
+  ]);
+
   if (done) {
-    const correct = results.filter((r) => r.correct).length;
-    return <SummaryCard correct={correct} total={items.length} />;
+    return <SummaryCard correct={correctCount} total={items.length} />;
   }
 
   if (!item) return null;

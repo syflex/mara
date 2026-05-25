@@ -1,16 +1,61 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { SprekenLine, SprekenPayload } from '@/lib/types';
+import { saveSectionResult, saveSpeakingAttempt } from '@/lib/practice';
+import type {
+  SectionCompletion,
+  SprekenLine,
+  SprekenPayload,
+} from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
 import { RECORDING } from '@/lib/config';
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: SprekenPayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
-export default function SprekenSection({ lessonId, payload }: Props) {
+export default function SprekenSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
+  const [recordedLineIds, setRecordedLineIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const complete =
+    payload.lines.length > 0 && recordedLineIds.size === payload.lines.length;
+
+  useEffect(() => {
+    const completion = {
+      isComplete: complete,
+      score: recordedLineIds.size,
+      total: payload.lines.length,
+      evidence: complete
+        ? `${payload.lines.length} spreekopnames opgeslagen. Uitspraakscore volgt later.`
+        : undefined,
+    };
+    onCompletionChange?.(completion);
+    if (complete) {
+      void saveSectionResult({
+        lessonId,
+        sectionId,
+        sectionType: 'spreken',
+        completion,
+      });
+    }
+  }, [
+    complete,
+    lessonId,
+    onCompletionChange,
+    payload.lines.length,
+    recordedLineIds.size,
+    sectionId,
+  ]);
+
   return (
     <div className="space-y-4">
       {payload.intro && (
@@ -19,7 +64,15 @@ export default function SprekenSection({ lessonId, payload }: Props) {
       <ol className="space-y-3">
         {payload.lines.map((line, i) => (
           <li key={line.id}>
-            <SpeakLineCard line={line} lessonId={lessonId} index={i + 1} />
+            <SpeakLineCard
+              line={line}
+              lessonId={lessonId}
+              sectionId={sectionId}
+              index={i + 1}
+              onRecorded={() =>
+                setRecordedLineIds((prev) => new Set(prev).add(line.id))
+              }
+            />
           </li>
         ))}
       </ol>
@@ -38,11 +91,15 @@ type RecorderState =
 function SpeakLineCard({
   line,
   lessonId,
+  sectionId,
   index,
+  onRecorded,
 }: {
   line: SprekenLine;
   lessonId: string;
+  sectionId: string;
   index: number;
+  onRecorded: () => void;
 }) {
   const [state, setState] = useState<RecorderState>({ kind: 'idle' });
   // `now` ticks every TICK_MS while recording. elapsedMs is derived from it
@@ -56,6 +113,7 @@ function SpeakLineCard({
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const startedAtRef = useRef<number>(0);
 
   function stopRecorder() {
     const recorder = recorderRef.current;
@@ -110,13 +168,26 @@ function SpeakLineCard({
           type: rec.mimeType || 'audio/webm',
         });
         const url = URL.createObjectURL(blob);
+        const durationMs = Math.max(0, Date.now() - startedAtRef.current);
         setState({ kind: 'recorded', url });
+        onRecorded();
+        void saveSpeakingAttempt({
+          lessonId,
+          sectionId,
+          lineId: line.id,
+          lineNl: line.nl,
+          blob,
+          mimeType: rec.mimeType || 'audio/webm',
+          durationMs,
+        });
         stream.getTracks().forEach((t) => t.stop());
         streamRef.current = null;
       });
       recorderRef.current = rec;
       rec.start();
-      setState({ kind: 'recording', startedAt: Date.now() });
+      const startedAt = Date.now();
+      startedAtRef.current = startedAt;
+      setState({ kind: 'recording', startedAt });
     } catch (e) {
       const raw = e instanceof Error ? e.message : String(e);
       const name = e instanceof Error ? e.name : '';

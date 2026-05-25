@@ -4,15 +4,54 @@
 // tiles to send them back. Tiles + expected are punctuation-free; the
 // trailing "." is decoration.
 
-import { useMemo, useState } from 'react';
-import type { ZinsbouwItem, ZinsbouwPayload } from '@/lib/types';
+import { useEffect, useMemo, useState } from 'react';
+import { saveSectionResult } from '@/lib/practice';
+import type { SectionCompletion, ZinsbouwItem, ZinsbouwPayload } from '@/lib/types';
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: ZinsbouwPayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
-export default function ZinsbouwSection({ payload }: Props) {
+export default function ZinsbouwSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
+  const [correctIndexes, setCorrectIndexes] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const complete =
+    payload.items.length > 0 && correctIndexes.size === payload.items.length;
+
+  useEffect(() => {
+    const completion = {
+      isComplete: complete,
+      score: correctIndexes.size,
+      total: payload.items.length,
+      evidence: complete ? `${payload.items.length} zinnen correct gebouwd.` : undefined,
+    };
+    onCompletionChange?.(completion);
+    if (complete) {
+      void saveSectionResult({
+        lessonId,
+        sectionId,
+        sectionType: 'zinsbouw',
+        completion,
+      });
+    }
+  }, [
+    complete,
+    correctIndexes.size,
+    lessonId,
+    onCompletionChange,
+    payload.items.length,
+    sectionId,
+  ]);
+
   return (
     <div className="space-y-4">
       {payload.intro && (
@@ -23,7 +62,13 @@ export default function ZinsbouwSection({ payload }: Props) {
       <ol className="space-y-3">
         {payload.items.map((item, i) => (
           <li key={i}>
-            <ZinsbouwCard item={item} index={i + 1} />
+            <ZinsbouwCard
+              item={item}
+              index={i + 1}
+              onCorrect={() =>
+                setCorrectIndexes((prev) => new Set(prev).add(i))
+              }
+            />
           </li>
         ))}
       </ol>
@@ -51,7 +96,15 @@ function shuffleIndices(n: number): number[] {
 
 type Verdict = null | 'correct' | 'wrong';
 
-function ZinsbouwCard({ item, index }: { item: ZinsbouwItem; index: number }) {
+function ZinsbouwCard({
+  item,
+  index,
+  onCorrect,
+}: {
+  item: ZinsbouwItem;
+  index: number;
+  onCorrect: () => void;
+}) {
   // bankOrder is the shuffled tile order shown in the bank. It stays stable
   // across plays; what moves around is `slotted` (indices into item.tiles).
   const bankOrder = useMemo(() => shuffleIndices(item.tiles.length), [item]);
@@ -79,6 +132,7 @@ function ZinsbouwCard({ item, index }: { item: ZinsbouwItem; index: number }) {
     const candidates = [item.expected, ...(item.acceptVariants ?? [])];
     const ok = candidates.some((c) => normalize(c) === normalize(built));
     setVerdict(ok ? 'correct' : 'wrong');
+    if (ok) onCorrect();
   }
 
   function reset() {

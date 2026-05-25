@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -11,10 +11,21 @@ import {
   markLessonComplete,
   markSectionComplete,
 } from '@/lib/lessons';
+import { sectionResultId } from '@/lib/practice';
 import { useTrackTimeOnPage } from '@/lib/activity';
 import SectionRenderer from '@/components/lesson/SectionRenderer';
 import { sectionLabel } from '@/components/lesson/sections/registry';
-import type { LessonSection, SectionType } from '@/lib/types';
+import type { LessonSection, SectionCompletion, SectionType } from '@/lib/types';
+
+const EVIDENCE_REQUIRED_TYPES = new Set<SectionType>([
+  'de-het',
+  'conjugatie',
+  'drill',
+  'zinsbouw',
+  'luisteren',
+  'spreken',
+  'schrijven',
+]);
 
 export default function LessonViewerClient({
   id,
@@ -58,11 +69,56 @@ export default function LessonViewerClient({
   }, [lesson, firstIncompleteIndex, reviewMode]);
 
   const [navigatedIndex, setNavigatedIndex] = useState<number | null>(null);
+  const [sectionCompletions, setSectionCompletions] = useState<
+    Record<string, SectionCompletion>
+  >({});
   const currentIndex = navigatedIndex ?? initialIndex;
+
+  const persistedSectionResult = useLiveQuery(
+    () =>
+      lesson
+        ? db.lessonSectionResults.get(
+            sectionResultId(lesson.id, lesson.sections[currentIndex]?.id ?? ''),
+          )
+        : undefined,
+    [lesson?.id, currentIndex],
+  );
 
   useEffect(() => {
     if (lesson && !reviewMode) void ensureLessonStarted(lesson.id);
   }, [lesson, reviewMode]);
+
+  const currentLesson = lesson;
+  const section = currentLesson?.sections[currentIndex];
+  const totalSections = currentLesson?.sections.length ?? 0;
+  const isLast = currentIndex === totalSections - 1;
+  const isFirst = currentIndex === 0;
+  const lessonDone = !!progress?.completedAt;
+  const showCelebration = lessonDone && !reviewMode;
+  const nextLesson = currentLesson
+    ? LESSONS.find((l) => l.order === currentLesson.order + 1)
+    : undefined;
+  const progressPct = totalSections > 0 ? ((currentIndex + 1) / totalSections) * 100 : 0;
+
+  const lessonId = currentLesson?.id;
+  const sectionNeedsEvidence = section
+    ? EVIDENCE_REQUIRED_TYPES.has(section.type)
+    : false;
+  const canContinue =
+    reviewMode ||
+    !section ||
+    completedIds.has(section.id) ||
+    persistedSectionResult?.sectionId === section.id ||
+    !sectionNeedsEvidence ||
+    sectionCompletions[section.id]?.isComplete === true;
+
+  const handleCompletionChange = useCallback((completion: SectionCompletion) => {
+    if (!section) return;
+    setSectionCompletions((prev) => ({
+      ...prev,
+      [section.id]: completion,
+    }));
+  }, [section]);
 
   if (!lesson) {
     return (
@@ -75,28 +131,18 @@ export default function LessonViewerClient({
     );
   }
 
-  const currentLesson = lesson;
-  const section = currentLesson.sections[currentIndex];
-  const totalSections = currentLesson.sections.length;
-  const isLast = currentIndex === totalSections - 1;
-  const isFirst = currentIndex === 0;
-  const lessonDone = !!progress?.completedAt;
-  const showCelebration = lessonDone && !reviewMode;
-  const nextLesson = LESSONS.find((l) => l.order === currentLesson.order + 1);
-  const progressPct = ((currentIndex + 1) / totalSections) * 100;
-
-  const lessonId = currentLesson.id;
   async function handleNext() {
-    if (!section) return;
+    if (!section || !lessonId || !lesson) return;
     if (reviewMode) {
       if (isLast) router.push('/lessen');
       else setNavigatedIndex(currentIndex + 1);
       return;
     }
+    if (!canContinue) return;
     await markSectionComplete(lessonId, section.id);
     const nextCompletedIds = new Set(completedIds);
     nextCompletedIds.add(section.id);
-    const nextIncompleteIndex = currentLesson.sections.findIndex(
+    const nextIncompleteIndex = lesson.sections.findIndex(
       (s) => !nextCompletedIds.has(s.id),
     );
     if (nextIncompleteIndex === -1) {
@@ -149,16 +195,16 @@ export default function LessonViewerClient({
       {!showCelebration && (
         <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            Les {currentLesson.order}
+            Les {lesson.order}
           </p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">
-            {currentLesson.titleNl}
+            {lesson.titleNl}
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {currentLesson.titleEn}
+            {lesson.titleEn}
           </p>
           <SectionPills
-            sections={currentLesson.sections}
+            sections={lesson.sections}
             currentIndex={currentIndex}
             completedIds={completedIds}
             firstIncompleteIndex={firstIncompleteIndex}
@@ -170,9 +216,9 @@ export default function LessonViewerClient({
 
       {showCelebration ? (
         <CompletionCard
-          lessonOrder={currentLesson.order}
-          recap={recapCounts(currentLesson)}
-          reviewHref={`/lessen/${currentLesson.id}?review=1`}
+          lessonOrder={lesson.order}
+          recap={recapCounts(lesson)}
+          reviewHref={`/lessen/${lesson.id}?review=1`}
           nextHref={nextLesson ? `/lessen/${nextLesson.id}` : null}
         />
       ) : (
@@ -182,7 +228,11 @@ export default function LessonViewerClient({
               {sectionLabel(section.type)}
             </p>
             <div className="mt-3">
-              <SectionRenderer section={section} lessonId={lessonId} />
+              <SectionRenderer
+                section={section}
+                lessonId={lesson.id}
+                onCompletionChange={handleCompletionChange}
+              />
             </div>
           </div>
         )
@@ -208,13 +258,18 @@ export default function LessonViewerClient({
             <button
               type="button"
               onClick={() => void handleNext()}
+              disabled={!canContinue}
               className={`min-h-12 flex-1 rounded-full px-6 py-3 text-base font-semibold text-white shadow-lg transition-colors ${
-                reviewMode
+                !canContinue
+                  ? 'cursor-not-allowed bg-zinc-300 text-zinc-500 shadow-none dark:bg-zinc-700 dark:text-zinc-500'
+                  : reviewMode
                   ? 'bg-zinc-700 shadow-zinc-700/20 hover:bg-zinc-800 active:bg-zinc-900 dark:bg-zinc-600 dark:hover:bg-zinc-500 dark:active:bg-zinc-400'
                   : 'bg-orange-600 shadow-orange-600/30 hover:bg-orange-700 active:bg-orange-800'
               }`}
             >
-              {reviewMode
+              {!canContinue
+                ? 'Maak deze sectie af'
+                : reviewMode
                 ? isLast
                   ? 'Klaar'
                   : 'Volgende →'

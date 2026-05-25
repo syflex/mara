@@ -16,9 +16,13 @@ export default function ReviewPage() {
     () => db.vocab.where('source').equals('lesson').toArray(),
     [],
   );
+  const writingAttempts = useLiveQuery(() => db.writingAttempts.toArray(), []);
+  const listeningAttempts = useLiveQuery(() => db.listeningAttempts.toArray(), []);
   const stats = vocab ? dueSoonCount(vocab) : null;
   const ready = stats ? stats.due + stats.newCount : 0;
   const total = stats?.total ?? 0;
+  const writingCount = writingAttempts?.length ?? 0;
+  const listeningCount = listeningAttempts?.length ?? 0;
 
   return (
     <div className="space-y-6">
@@ -43,8 +47,28 @@ export default function ReviewPage() {
           }
           href={ready > 0 ? '/vocab' : null}
         />
-        <ReviewRow title="Schrijven" subtitle="Beschikbaar later" href={null} />
-        <ReviewRow title="Luisteren" subtitle="Beschikbaar later" href={null} />
+        <ReviewRow
+          title="Schrijven"
+          subtitle={
+            writingAttempts === undefined
+              ? 'Laden…'
+              : writingCount === 0
+                ? 'Komt na schrijfoefeningen'
+                : `${writingCount} antwoorden`
+          }
+          href={writingCount > 0 ? '/review/schrijven' : null}
+        />
+        <ReviewRow
+          title="Luisteren"
+          subtitle={
+            listeningAttempts === undefined
+              ? 'Laden…'
+              : listeningCount === 0
+                ? 'Komt na luisteroefeningen'
+                : `${listeningCount} antwoorden`
+          }
+          href={listeningCount > 0 ? '/review/luisteren' : null}
+        />
       </ul>
 
       {ready > 0 ? (

@@ -4,15 +4,58 @@
 // sentence, then the model (expected) is revealed for self-comparison.
 // No grading — personalized answers (name, city, age) can't be string-matched.
 
-import { useState } from 'react';
-import type { SchrijvenItem, SchrijvenPayload } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { saveSectionResult, saveWritingAttempt } from '@/lib/practice';
+import type {
+  SchrijvenItem,
+  SchrijvenPayload,
+  SectionCompletion,
+} from '@/lib/types';
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: SchrijvenPayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
-export default function SchrijvenSection({ payload }: Props) {
+export default function SchrijvenSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
+  const [submittedIndexes, setSubmittedIndexes] = useState<Set<number>>(
+    () => new Set(),
+  );
+  const complete =
+    payload.items.length > 0 && submittedIndexes.size === payload.items.length;
+
+  useEffect(() => {
+    const completion = {
+      isComplete: complete,
+      score: submittedIndexes.size,
+      total: payload.items.length,
+      evidence: complete ? 'Alle schrijfopdrachten ingediend.' : undefined,
+    };
+    onCompletionChange?.(completion);
+    if (complete) {
+      void saveSectionResult({
+        lessonId,
+        sectionId,
+        sectionType: 'schrijven',
+        completion,
+      });
+    }
+  }, [
+    complete,
+    lessonId,
+    onCompletionChange,
+    payload.items.length,
+    sectionId,
+    submittedIndexes.size,
+  ]);
+
   return (
     <div className="space-y-4">
       {payload.intro && (
@@ -23,7 +66,15 @@ export default function SchrijvenSection({ payload }: Props) {
       <ol className="space-y-3">
         {payload.items.map((item, i) => (
           <li key={i}>
-            <SchrijvenCard item={item} index={i + 1} />
+            <SchrijvenCard
+              item={item}
+              lessonId={lessonId}
+              sectionId={sectionId}
+              index={i + 1}
+              onSubmitted={() =>
+                setSubmittedIndexes((prev) => new Set(prev).add(i))
+              }
+            />
           </li>
         ))}
       </ol>
@@ -31,13 +82,34 @@ export default function SchrijvenSection({ payload }: Props) {
   );
 }
 
-function SchrijvenCard({ item, index }: { item: SchrijvenItem; index: number }) {
+function SchrijvenCard({
+  item,
+  lessonId,
+  sectionId,
+  index,
+  onSubmitted,
+}: {
+  item: SchrijvenItem;
+  lessonId: string;
+  sectionId: string;
+  index: number;
+  onSubmitted: () => void;
+}) {
   const [value, setValue] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   function submit() {
     if (!value.trim()) return;
     setSubmitted(true);
+    onSubmitted();
+    void saveWritingAttempt({
+      lessonId,
+      sectionId,
+      itemIndex: index - 1,
+      promptEn: item.promptEn,
+      answer: value.trim(),
+      expected: item.expected,
+    });
   }
 
   function tryAgain() {

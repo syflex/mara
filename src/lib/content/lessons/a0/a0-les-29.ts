@@ -7,14 +7,37 @@ export const A0_LES_29: Lesson = {
   order: 29,
   titleNl: 'Niet vs geen — volledig',
   titleEn: 'Niet vs geen — full rules',
-  estimatedMinutes: 13,
-  coverage: ['§3.6'],
+  estimatedMinutes: 15,
+  coverage: ['§2.11', '§3.6'],
   prerequisites: ['a0-les-28'],
   reviewWords: [
     { nl: 'geen', en: 'no / not a / not any' },
     { nl: 'wel', en: 'do / yes (affirmation; opposite of niet)' },
   ],
   sections: [
+    {
+      id: 'woorden-1',
+      type: 'woorden',
+      payload: {
+        intro:
+          'Kleine woordjes die zinnen aan elkaar lijmen of iets sterker, zwakker of groter maken. Je kent ze vaak al uit voorbeeldzinnen; hier worden ze actieve review.',
+        words: [
+          { nl: 'en', en: 'and', partOfSpeech: 'conjunction', exampleNl: 'Ik drink koffie en water.', exampleEn: 'I drink coffee and water.' },
+          { nl: 'of', en: 'or', partOfSpeech: 'conjunction', exampleNl: 'Koffie of thee?', exampleEn: 'Coffee or tea?' },
+          { nl: 'maar', en: 'but', partOfSpeech: 'conjunction', exampleNl: 'Ik wil koffie, maar geen melk.', exampleEn: 'I want coffee, but no milk.' },
+          { nl: 'want', en: 'because', partOfSpeech: 'conjunction', exampleNl: 'Ik drink water, want ik heb dorst.', exampleEn: 'I drink water because I am thirsty.' },
+          { nl: 'dus', en: 'so / therefore', partOfSpeech: 'conjunction', exampleNl: 'Ik ben moe, dus ik slaap.', exampleEn: 'I am tired, so I sleep.' },
+          { nl: 'ook', en: 'also / too', partOfSpeech: 'adverb', exampleNl: 'Ik kom ook.', exampleEn: 'I am coming too.' },
+          { nl: 'veel', en: 'much / many / a lot', partOfSpeech: 'adverb', exampleNl: 'Ik heb veel tijd.', exampleEn: 'I have a lot of time.' },
+          { nl: 'weinig', en: 'little / few', partOfSpeech: 'adverb', exampleNl: 'Ik heb weinig tijd.', exampleEn: 'I have little time.' },
+          { nl: 'alle', en: 'all', partOfSpeech: 'adverb', exampleNl: 'Alle kinderen zijn thuis.', exampleEn: 'All children are home.' },
+          { nl: 'sommige', en: 'some', partOfSpeech: 'adverb', exampleNl: 'Sommige woorden zijn kort.', exampleEn: 'Some words are short.' },
+          { nl: 'een paar', en: 'a few', partOfSpeech: 'phrase', exampleNl: 'Ik heb een paar vragen.', exampleEn: 'I have a few questions.' },
+          { nl: 'heel', en: 'very / whole', partOfSpeech: 'adverb', exampleNl: 'Dat is heel goed.', exampleEn: 'That is very good.' },
+          { nl: 'zeer', en: 'very (formal)', partOfSpeech: 'adverb', exampleNl: 'Zeer bedankt.', exampleEn: 'Many thanks. / Thank you very much.' },
+        ],
+      },
+    },
     {
       id: 'uitleg-1',
       type: 'uitleg',

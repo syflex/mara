@@ -20,14 +20,164 @@ import { LESSONS } from '../src/lib/content/lessons';
 import { collectAudio } from './lib/audio-items';
 import { AUDIO_DIR, loadManifest } from './lib/audio-manifest';
 import { SECTION_REGISTRY } from '../src/components/lesson/sections/registry';
+import type { Lesson, Woord } from '../src/lib/types';
+
+interface RequiredActiveVocab {
+  nl: string;
+  enPattern?: RegExp;
+}
 
 interface Issue {
   lesson: string;
-  kind: 'unimplemented-section' | 'missing-manifest' | 'missing-file';
+  kind:
+    | 'unimplemented-section'
+    | 'missing-manifest'
+    | 'missing-file'
+    | 'missing-active-vocab';
   detail: string;
 }
 
 const SKIP_FILES = process.env.SKIP_AUDIO_FILE_CHECK === '1';
+
+const REQUIRED_ACTIVE_VOCAB: Record<string, RequiredActiveVocab[]> = {
+  '§2.1 Groeten & beleefdheid': [
+    'hallo',
+    'hoi',
+    'dag',
+    'goedemorgen',
+    'goedemiddag',
+    'goedenavond',
+    'goedenacht',
+    'tot ziens',
+    'tot morgen',
+    'doei',
+    'alstublieft',
+    'alsjeblieft',
+    'dank u wel',
+    'dank je wel',
+    'graag gedaan',
+    'sorry',
+    'pardon',
+    'meneer',
+    'mevrouw',
+  ].map((nl) => ({ nl })),
+  '§2.2 Personalia': [
+    'naam',
+    'heten',
+    'ik ben',
+    'wonen',
+    'komen',
+    'oud',
+    'jaar',
+    'land',
+    'stad',
+    'straat',
+    'adres',
+    'telefoonnummer',
+    'spreken',
+    'beetje',
+    'Nederlands',
+    'Engels',
+    'Nederland',
+    'België',
+    'nationaliteit',
+    'werk',
+    'student',
+    'leraar',
+    'lerares',
+  ].map((nl) => ({ nl })),
+  '§2.4 Tijd & datum': [
+    'maandag',
+    'dinsdag',
+    'woensdag',
+    'donderdag',
+    'vrijdag',
+    'zaterdag',
+    'zondag',
+    'januari',
+    'februari',
+    'maart',
+    'april',
+    'mei',
+    'juni',
+    'juli',
+    'augustus',
+    'september',
+    'oktober',
+    'november',
+    'december',
+    'lente',
+    'zomer',
+    'herfst',
+    'winter',
+    'vandaag',
+    'gisteren',
+    'morgen',
+    'eergisteren',
+    'overmorgen',
+    'nu',
+    'straks',
+    'later',
+    'vroeg',
+    'laat',
+    'ochtend',
+    'middag',
+    'avond',
+    'nacht',
+    'vannacht',
+    'vanochtend',
+    'vanavond',
+    'uur',
+    'half',
+    'kwart',
+  ].map((nl) => ({ nl })),
+  '§2.11 Kleine woordjes': [
+    'ik',
+    'jij',
+    'je',
+    'hij',
+    'zij',
+    'ze',
+    'het',
+    'wij',
+    'we',
+    'jullie',
+    'u',
+    'mijn',
+    'jouw',
+    { nl: 'zijn', enPattern: /\bhis\b/i },
+    { nl: 'haar', enPattern: /\bher\b/i },
+    'ons',
+    'onze',
+    'hun',
+    'ja',
+    'nee',
+    'niet',
+    'geen',
+    'wel',
+    'en',
+    'of',
+    'maar',
+    'want',
+    'dus',
+    'ook',
+    'de',
+    'een',
+    'dit',
+    'dat',
+    'deze',
+    'die',
+    'veel',
+    'weinig',
+    'alle',
+    'sommige',
+    'een paar',
+    'heel',
+    'erg',
+    'een beetje',
+    'zeer',
+  ].map((item) => (typeof item === 'string' ? { nl: item } : item)),
+};
 
 function validateSectionsImplemented(): Issue[] {
   const issues: Issue[] = [];
@@ -75,9 +225,41 @@ async function validateAudioResolves(): Promise<Issue[]> {
   return issues;
 }
 
+function collectActiveWords(lesson: Lesson): Woord[] {
+  const out: Woord[] = [...(lesson.reviewWords ?? [])];
+  for (const section of lesson.sections) {
+    if (section.type === 'woorden') out.push(...section.payload.words);
+  }
+  return out;
+}
+
+function matchesRequired(word: Woord, required: RequiredActiveVocab): boolean {
+  if (word.nl.toLowerCase() !== required.nl.toLowerCase()) return false;
+  return required.enPattern ? required.enPattern.test(word.en) : true;
+}
+
+function validateRequiredActiveVocab(): Issue[] {
+  const activeWords = LESSONS.flatMap((lesson) => collectActiveWords(lesson));
+  const issues: Issue[] = [];
+
+  for (const [section, requiredItems] of Object.entries(REQUIRED_ACTIVE_VOCAB)) {
+    for (const required of requiredItems) {
+      if (activeWords.some((word) => matchesRequired(word, required))) continue;
+      issues.push({
+        lesson: 'A0',
+        kind: 'missing-active-vocab',
+        detail: `${section}: '${required.nl}' is required by the syllabus but is not in a woorden section or reviewWords`,
+      });
+    }
+  }
+
+  return issues;
+}
+
 async function main() {
   const issues = [
     ...validateSectionsImplemented(),
+    ...validateRequiredActiveVocab(),
     ...(await validateAudioResolves()),
   ];
 

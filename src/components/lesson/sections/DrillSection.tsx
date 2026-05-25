@@ -6,7 +6,8 @@
 // learner can sit with the reveal before moving on.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { DrillPayload } from '@/lib/types';
+import { saveSectionResult } from '@/lib/practice';
+import type { DrillPayload, SectionCompletion } from '@/lib/types';
 import { audioUrl, hasAudio } from '@/lib/audio';
 import { DRILL } from '@/lib/config';
 
@@ -14,7 +15,9 @@ const { autoAdvanceMs: AUTO_ADVANCE_MS } = DRILL;
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: DrillPayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
 type Result = { itemIndex: number; correct: boolean };
@@ -50,7 +53,12 @@ function isTypedCorrect(
   return candidates.some((c) => normalize(c) === normalize(value));
 }
 
-export default function DrillSection({ lessonId, payload }: Props) {
+export default function DrillSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
   // Shuffle items AND each mc item's choices once per mount. Authors
   // habitually write `correct: true` first; without choice shuffle the
   // right answer always lands top-left.
@@ -70,6 +78,7 @@ export default function DrillSection({ lessonId, payload }: Props) {
   const done = currentIndex >= items.length;
   const locked = answer !== null;
   const isCorrect = answer?.correct === true;
+  const correctCount = results.filter((r) => r.correct).length;
 
   // Auto-play on item change (browser autoplay rules: this works after
   // the user has interacted with the page, which they have by tapping
@@ -106,9 +115,39 @@ export default function DrillSection({ lessonId, payload }: Props) {
     };
   }, []);
 
+  useEffect(() => {
+    if (!done) {
+      onCompletionChange?.({
+        isComplete: false,
+        score: correctCount,
+        total: items.length,
+      });
+      return;
+    }
+    const completion = {
+      isComplete: true,
+      score: correctCount,
+      total: items.length,
+      evidence: `${items.length} drill-items beantwoord.`,
+    };
+    onCompletionChange?.(completion);
+    void saveSectionResult({
+      lessonId,
+      sectionId,
+      sectionType: 'drill',
+      completion,
+    });
+  }, [
+    correctCount,
+    done,
+    items.length,
+    lessonId,
+    onCompletionChange,
+    sectionId,
+  ]);
+
   if (done) {
-    const correct = results.filter((r) => r.correct).length;
-    return <SummaryCard correct={correct} total={items.length} />;
+    return <SummaryCard correct={correctCount} total={items.length} />;
   }
 
   if (!item) return null;

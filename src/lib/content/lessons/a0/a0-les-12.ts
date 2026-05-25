@@ -10,6 +10,11 @@ export const A0_LES_12: Lesson = {
   estimatedMinutes: 14,
   coverage: ['§3.4', '§2.11'],
   prerequisites: ['a0-les-11'],
+  reviewWords: [
+    { nl: 'de', en: 'the (common-gender article)', partOfSpeech: 'article' },
+    { nl: 'het', en: 'the (neuter article)', partOfSpeech: 'article', srsKey: 'het-article' },
+    { nl: 'een', en: 'a / an', partOfSpeech: 'article' },
+  ],
   sections: [
     {
       id: 'uitleg-1',

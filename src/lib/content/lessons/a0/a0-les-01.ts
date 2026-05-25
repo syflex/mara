@@ -55,7 +55,7 @@ export const A0_LES_01: Lesson = {
       type: 'woorden',
       payload: {
         intro:
-          'Tap the speaker to hear each greeting (or 0.5× for slow). Watch for the formality tag — informal vs formal makes a real difference in Dutch.',
+          'Core greetings and politeness phrases. Tap the speaker where audio is available (or 0.5× for slow). Watch for the formality tag — informal vs formal makes a real difference in Dutch.',
         words: [
           {
             nl: 'hallo',
@@ -112,6 +112,14 @@ export const A0_LES_01: Lesson = {
             exampleEn: 'Good evening, welcome home.',
           },
           {
+            nl: 'goedenacht',
+            en: 'good night',
+            formality: 'formeel',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Goedenacht, slaap lekker.',
+            exampleEn: 'Good night, sleep well.',
+          },
+          {
             nl: 'tot ziens',
             en: 'goodbye',
             formality: 'formeel',
@@ -125,6 +133,73 @@ export const A0_LES_01: Lesson = {
             audioId: 'tot-morgen',
             exampleNl: 'Tot morgen op werk.',
             exampleEn: 'See you tomorrow at work.',
+          },
+          {
+            nl: 'alstublieft',
+            en: 'please / here you go (formal)',
+            formality: 'formeel',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Een koffie, alstublieft.',
+            exampleEn: 'A coffee, please.',
+          },
+          {
+            nl: 'alsjeblieft',
+            en: 'please / here you go (informal)',
+            formality: 'informeel',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Hier, alsjeblieft.',
+            exampleEn: 'Here you go.',
+          },
+          {
+            nl: 'dank u wel',
+            en: 'thank you (formal)',
+            formality: 'formeel',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Dank u wel, mevrouw.',
+            exampleEn: 'Thank you, ma’am.',
+          },
+          {
+            nl: 'dank je wel',
+            en: 'thank you (informal)',
+            formality: 'informeel',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Dank je wel, Tom.',
+            exampleEn: 'Thank you, Tom.',
+          },
+          {
+            nl: 'graag gedaan',
+            en: "you're welcome",
+            partOfSpeech: 'phrase',
+            exampleNl: 'Dank je wel. Graag gedaan.',
+            exampleEn: "Thank you. You're welcome.",
+          },
+          {
+            nl: 'sorry',
+            en: 'sorry',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Sorry, ik ben laat.',
+            exampleEn: 'Sorry, I am late.',
+          },
+          {
+            nl: 'pardon',
+            en: 'excuse me',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Pardon, waar is de trein?',
+            exampleEn: 'Excuse me, where is the train?',
+          },
+          {
+            nl: 'ja',
+            en: 'yes',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Ja, dat klopt.',
+            exampleEn: 'Yes, that is correct.',
+          },
+          {
+            nl: 'nee',
+            en: 'no',
+            partOfSpeech: 'phrase',
+            exampleNl: 'Nee, dank u wel.',
+            exampleEn: 'No, thank you.',
           },
           {
             nl: 'meneer',

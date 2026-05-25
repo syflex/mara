@@ -13,6 +13,8 @@ export const A0_LES_16: Lesson = {
   reviewWords: [
     { nl: 'niet', en: 'not' },
     { nl: 'voelen', en: 'to feel' },
+    { nl: 'erg', en: 'very', partOfSpeech: 'adverb' },
+    { nl: 'een beetje', en: 'a little / a bit', partOfSpeech: 'phrase' },
   ],
   sections: [
     {

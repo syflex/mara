@@ -1,16 +1,18 @@
 'use client';
 
 import type { ComponentType } from 'react';
-import type { LessonSection } from '@/lib/types';
+import type { LessonSection, SectionCompletion } from '@/lib/types';
 import PlaceholderSection from './PlaceholderSection';
 import { SECTION_REGISTRY } from './sections/registry';
 
 export default function SectionRenderer({
   section,
   lessonId,
+  onCompletionChange,
 }: {
   section: LessonSection;
   lessonId: string;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }) {
   const entry = SECTION_REGISTRY[section.type];
   if (!entry.component) {
@@ -22,7 +24,16 @@ export default function SectionRenderer({
   // registry definition itself (component K accepts payload K).
   const Component = entry.component as ComponentType<{
     lessonId: string;
+    sectionId: string;
     payload: typeof section.payload;
+    onCompletionChange?: (completion: SectionCompletion) => void;
   }>;
-  return <Component lessonId={lessonId} payload={section.payload} />;
+  return (
+    <Component
+      lessonId={lessonId}
+      sectionId={section.id}
+      payload={section.payload}
+      onCompletionChange={onCompletionChange}
+    />
+  );
 }

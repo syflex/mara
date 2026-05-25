@@ -7,12 +7,9 @@ export const A0_LES_17: Lesson = {
   order: 17,
   titleNl: 'Tijd & datum — dagen, maanden, seizoenen',
   titleEn: 'Time & date — days, months, seasons',
-  estimatedMinutes: 16,
+  estimatedMinutes: 18,
   coverage: ['§2.4'],
   prerequisites: ['a0-les-16'],
-  reviewWords: [
-    { nl: 'vandaag', en: 'today' },
-  ],
   sections: [
     {
       id: 'woorden-1',
@@ -82,6 +79,33 @@ export const A0_LES_17: Lesson = {
           { nl: 'oktober', en: 'October', audioId: 'oktober' },
           { nl: 'november', en: 'November', audioId: 'november' },
           { nl: 'december', en: 'December', audioId: 'december' },
+        ],
+      },
+    },
+    {
+      id: 'woorden-3',
+      type: 'woorden',
+      payload: {
+        intro:
+          'Tijdwoorden en dagdelen die je in echte afspraken hoort. Let op: "morgen" is tomorrow; "ochtend" is morning. De samengestelde woorden met van- betekenen "this ...".',
+        words: [
+          { nl: 'vandaag', en: 'today', partOfSpeech: 'adverb', exampleNl: 'Vandaag is het maandag.', exampleEn: 'Today is Monday.' },
+          { nl: 'gisteren', en: 'yesterday', partOfSpeech: 'adverb', exampleNl: 'Gisteren was het zondag.', exampleEn: 'Yesterday was Sunday.' },
+          { nl: 'morgen', en: 'tomorrow', partOfSpeech: 'adverb', exampleNl: 'Morgen is het dinsdag.', exampleEn: 'Tomorrow is Tuesday.' },
+          { nl: 'eergisteren', en: 'the day before yesterday', partOfSpeech: 'adverb', exampleNl: 'Eergisteren was ik thuis.', exampleEn: 'The day before yesterday I was home.' },
+          { nl: 'overmorgen', en: 'the day after tomorrow', partOfSpeech: 'adverb', exampleNl: 'Overmorgen heb ik les.', exampleEn: 'The day after tomorrow I have class.' },
+          { nl: 'nu', en: 'now', partOfSpeech: 'adverb', exampleNl: 'Ik ben nu thuis.', exampleEn: 'I am home now.' },
+          { nl: 'straks', en: 'later soon', partOfSpeech: 'adverb', exampleNl: 'Ik kom straks.', exampleEn: 'I am coming later.' },
+          { nl: 'later', en: 'later', partOfSpeech: 'adverb', exampleNl: 'Tot later.', exampleEn: 'See you later.' },
+          { nl: 'vroeg', en: 'early', partOfSpeech: 'adverb', exampleNl: 'De les is vroeg.', exampleEn: 'The class is early.' },
+          { nl: 'laat', en: 'late', partOfSpeech: 'adverb', exampleNl: 'Ik ben laat.', exampleEn: 'I am late.' },
+          { nl: 'ochtend', en: 'morning', gender: 'de', exampleNl: 'De ochtend is rustig.', exampleEn: 'The morning is quiet.' },
+          { nl: 'middag', en: 'afternoon', gender: 'de', exampleNl: 'De middag is warm.', exampleEn: 'The afternoon is warm.' },
+          { nl: 'avond', en: 'evening', gender: 'de', exampleNl: 'De avond is koud.', exampleEn: 'The evening is cold.' },
+          { nl: 'nacht', en: 'night', gender: 'de', exampleNl: 'De nacht is stil.', exampleEn: 'The night is quiet.' },
+          { nl: 'vannacht', en: 'tonight / last night', partOfSpeech: 'adverb', exampleNl: 'Vannacht slaap ik thuis.', exampleEn: 'Tonight I sleep at home.' },
+          { nl: 'vanochtend', en: 'this morning', partOfSpeech: 'adverb', exampleNl: 'Vanochtend heb ik koffie.', exampleEn: 'This morning I have coffee.' },
+          { nl: 'vanavond', en: 'this evening', partOfSpeech: 'adverb', exampleNl: 'Vanavond ben ik thuis.', exampleEn: 'This evening I am home.' },
         ],
       },
     },

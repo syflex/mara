@@ -1,7 +1,13 @@
 import { db } from './db';
 import { LESSONS } from './content/lessons';
 import { newSrsState } from './srs';
-import type { Lesson, LessonProgress, VocabCard, Woord } from './types';
+import type {
+  Lesson,
+  LessonProgress,
+  PartOfSpeech,
+  VocabCard,
+  Woord,
+} from './types';
 
 export function isLessonComplete(progress: LessonProgress | undefined): boolean {
   return !!progress?.completedAt;
@@ -163,22 +169,273 @@ export async function markLessonComplete(lessonId: string): Promise<void> {
   if (lesson) await importLessonVocab(lesson);
 }
 
-function vocabIdFor(nl: string): string {
-  const slug = nl
+function vocabIdFor(word: Pick<Woord, 'nl' | 'srsKey'>): string {
+  const value = word.srsKey ?? word.nl;
+  const slug = value
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return `vocab:${slug || encodeURIComponent(nl.toLowerCase())}`;
+  return `vocab:${slug || encodeURIComponent(value.toLowerCase())}`;
+}
+
+const POS_LEXICON: Partial<Record<PartOfSpeech, Set<string>>> = {
+  article: new Set(['de', 'het', 'een']),
+  numeral: new Set([
+    'nul',
+    'één',
+    'een',
+    'twee',
+    'drie',
+    'vier',
+    'vijf',
+    'zes',
+    'zeven',
+    'acht',
+    'negen',
+    'tien',
+    'elf',
+    'twaalf',
+    'dertien',
+    'veertien',
+    'vijftien',
+    'zestien',
+    'zeventien',
+    'achttien',
+    'negentien',
+    'twintig',
+    'dertig',
+    'veertig',
+    'vijftig',
+    'zestig',
+    'zeventig',
+    'tachtig',
+    'negentig',
+    'honderd',
+    'half',
+    'kwart',
+  ]),
+  pronoun: new Set([
+    'ik',
+    'jij',
+    'je',
+    'u',
+    'hij',
+    'zij',
+    'ze',
+    'wij',
+    'we',
+    'jullie',
+    'het',
+    'mijn',
+    'jouw',
+    'uw',
+    'zijn',
+    'haar',
+    'ons',
+    'onze',
+    'hun',
+    'dit',
+    'dat',
+    'deze',
+    'die',
+    'wie',
+    'wat',
+    'welk',
+    'welke',
+    'hoeveel',
+  ]),
+  preposition: new Set([
+    'aan',
+    'bij',
+    'boven',
+    'in',
+    'met',
+    'na',
+    'naar',
+    'naast',
+    'om',
+    'onder',
+    'op',
+    'tot',
+    'tussen',
+    'uit',
+    'van',
+    'voor',
+  ]),
+  conjunction: new Set(['en', 'of', 'maar', 'want', 'dus']),
+  verb: new Set([
+    'ben',
+    'bent',
+    'is',
+    'zijn',
+    'heb',
+    'hebt',
+    'heeft',
+    'hebben',
+    'heten',
+    'woon',
+    'woont',
+    'wonen',
+    'kom',
+    'komt',
+    'komen',
+    'voelen',
+    'drinken',
+    'eten',
+    'koken',
+    'doen',
+    'gaan',
+    'geven',
+    'kijken',
+    'kunnen',
+    'leren',
+    'lezen',
+    'luisteren',
+    'maken',
+    'moeten',
+    'mogen',
+    'nemen',
+    'praten',
+    'schrijven',
+    'spreken',
+    'weten',
+    'werken',
+    'willen',
+    'zeggen',
+    'zien',
+  ]),
+  adjective: new Set([
+    'bang',
+    'blij',
+    'boos',
+    'blauw',
+    'bruin',
+    'geel',
+    'goed',
+    'grijs',
+    'groen',
+    'groot',
+    'heet',
+    'hoog',
+    'jong',
+    'klein',
+    'koel',
+    'kort',
+    'koud',
+    'laag',
+    'lang',
+    'langzaam',
+    'lekker',
+    'lelijk',
+    'leuk',
+    'makkelijk',
+    'moe',
+    'moeilijk',
+    'mooi',
+    'nieuw',
+    'oranje',
+    'oud',
+    'paars',
+    'rood',
+    'roze',
+    'slecht',
+    'snel',
+    'verdrietig',
+    'warm',
+    'wit',
+    'ziek',
+    'zwart',
+  ]),
+  adverb: new Set([
+    'alle',
+    'eergisteren',
+    'een beetje',
+    'een paar',
+    'erg',
+    'geen',
+    'gisteren',
+    'heel',
+    'hoe',
+    'laat',
+    'later',
+    'morgen',
+    'niet',
+    'nu',
+    'ook',
+    'overmorgen',
+    'sommige',
+    'straks',
+    'vanavond',
+    'vandaag',
+    'vannacht',
+    'vanochtend',
+    'veel',
+    'vroeg',
+    'waar',
+    'waarom',
+    'wanneer',
+    'weinig',
+    'wel',
+    'zeer',
+  ]),
+  noun: new Set([
+    'april',
+    'augustus',
+    'beetje',
+    'belgië',
+    'december',
+    'dinsdag',
+    'donderdag',
+    'engels',
+    'februari',
+    'januari',
+    'juli',
+    'juni',
+    'maandag',
+    'maart',
+    'mei',
+    'nederland',
+    'nederlands',
+    'november',
+    'oktober',
+    'september',
+    'vrijdag',
+    'woensdag',
+    'zaterdag',
+    'zondag',
+  ]),
+};
+
+function inferPartOfSpeech(word: Woord): PartOfSpeech {
+  if (word.gender) return 'noun';
+  const key = word.nl.trim().toLowerCase();
+  const english = word.en.toLowerCase();
+  if (key === 'zijn') return /\bhis\b/.test(english) ? 'pronoun' : 'verb';
+  if (key === 'het') return /\bit\b/.test(english) ? 'pronoun' : 'article';
+  for (const partOfSpeech of [
+    'article',
+    'numeral',
+    'pronoun',
+    'preposition',
+    'conjunction',
+    'verb',
+    'adjective',
+    'adverb',
+    'noun',
+  ] as const) {
+    if (POS_LEXICON[partOfSpeech]?.has(key)) return partOfSpeech;
+  }
+  return 'phrase';
 }
 
 function woordToVocabCard(word: Woord, lesson: Lesson): VocabCard {
   return {
-    id: vocabIdFor(word.nl),
+    id: vocabIdFor(word),
     dutch: word.nl,
     english: word.en,
-    partOfSpeech: word.gender ? 'noun' : 'phrase',
+    partOfSpeech: word.partOfSpeech ?? inferPartOfSpeech(word),
     gender: word.gender,
     exampleNl: word.exampleNl,
     exampleEn: word.exampleEn,
@@ -203,19 +460,43 @@ function collectWoorden(lesson: Lesson): Woord[] {
 export async function importLessonVocab(lesson: Lesson): Promise<number> {
   const seen = new Set<string>();
   const words = collectWoorden(lesson).filter((word) => {
-    const id = vocabIdFor(word.nl);
+    const id = vocabIdFor(word);
     if (seen.has(id)) return false;
     seen.add(id);
     return true;
   });
   if (words.length === 0) return 0;
-  const ids = words.map((w) => vocabIdFor(w.nl));
+  const ids = words.map((w) => vocabIdFor(w));
   const existing = await db.vocab.bulkGet(ids);
   const toAdd: VocabCard[] = [];
+  const toUpdate: VocabCard[] = [];
   words.forEach((w, i) => {
-    if (!existing[i]) toAdd.push(woordToVocabCard(w, lesson));
+    const next = woordToVocabCard(w, lesson);
+    const current = existing[i];
+    if (!current) {
+      toAdd.push(next);
+      return;
+    }
+    if (
+      current.source === 'lesson' &&
+      (current.partOfSpeech !== next.partOfSpeech ||
+        current.gender !== next.gender ||
+        current.exampleNl !== next.exampleNl ||
+        current.exampleEn !== next.exampleEn ||
+        current.audioId !== next.audioId)
+    ) {
+      toUpdate.push({
+        ...current,
+        partOfSpeech: next.partOfSpeech,
+        gender: next.gender,
+        exampleNl: next.exampleNl,
+        exampleEn: next.exampleEn,
+        audioId: next.audioId,
+      });
+    }
   });
   if (toAdd.length > 0) await db.vocab.bulkAdd(toAdd);
+  if (toUpdate.length > 0) await db.vocab.bulkPut(toUpdate);
   return toAdd.length;
 }
 

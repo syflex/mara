@@ -3,17 +3,59 @@
 // One shared audio clip + a stack of independent questions (MC or typed).
 // First tap locks the answer; transcript stays hidden until the learner asks.
 
-import { useState } from 'react';
-import type { LuisterenPayload, LuisterenQuestion } from '@/lib/types';
+import { useEffect, useState } from 'react';
+import { saveListeningAttempt, saveSectionResult } from '@/lib/practice';
+import type {
+  LuisterenPayload,
+  LuisterenQuestion,
+  SectionCompletion,
+} from '@/lib/types';
 import AudioPlayer from '@/components/audio/AudioPlayer';
 
 interface Props {
   lessonId: string;
+  sectionId: string;
   payload: LuisterenPayload;
+  onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
-export default function LuisterenSection({ lessonId, payload }: Props) {
+export default function LuisterenSection({
+  lessonId,
+  sectionId,
+  payload,
+  onCompletionChange,
+}: Props) {
   const [showTranscript, setShowTranscript] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, boolean>>({});
+  const answeredCount = Object.keys(answers).length;
+  const correctCount = Object.values(answers).filter(Boolean).length;
+  const complete =
+    payload.questions.length > 0 && answeredCount === payload.questions.length;
+
+  useEffect(() => {
+    const completion = {
+      isComplete: complete,
+      score: correctCount,
+      total: payload.questions.length,
+      evidence: complete ? `${payload.questions.length} luistervragen beantwoord.` : undefined,
+    };
+    onCompletionChange?.(completion);
+    if (complete) {
+      void saveSectionResult({
+        lessonId,
+        sectionId,
+        sectionType: 'luisteren',
+        completion,
+      });
+    }
+  }, [
+    complete,
+    correctCount,
+    lessonId,
+    onCompletionChange,
+    payload.questions.length,
+    sectionId,
+  ]);
 
   return (
     <div className="space-y-4">
@@ -59,7 +101,15 @@ export default function LuisterenSection({ lessonId, payload }: Props) {
       <ol className="space-y-3">
         {payload.questions.map((q, i) => (
           <li key={i}>
-            <QuestionCard question={q} index={i + 1} />
+            <QuestionCard
+              lessonId={lessonId}
+              sectionId={sectionId}
+              question={q}
+              index={i + 1}
+              onAnswered={(correct) =>
+                setAnswers((prev) => ({ ...prev, [i]: correct }))
+              }
+            />
           </li>
         ))}
       </ol>
@@ -82,11 +132,17 @@ function normalize(s: string): string {
 }
 
 function QuestionCard({
+  lessonId,
+  sectionId,
   question,
   index,
+  onAnswered,
 }: {
+  lessonId: string;
+  sectionId: string;
   question: LuisterenQuestion;
   index: number;
+  onAnswered: (correct: boolean) => void;
 }) {
   const [state, setState] = useState<AnswerState>({ kind: 'unanswered' });
   const isMc = question.choices !== undefined && question.choices.length > 0;
@@ -106,22 +162,46 @@ function QuestionCard({
       )}
 
       {isMc ? (
-        <McChoices question={question} state={state} setState={setState} />
+        <McChoices
+          lessonId={lessonId}
+          sectionId={sectionId}
+          question={question}
+          questionIndex={index - 1}
+          state={state}
+          setState={setState}
+          onAnswered={onAnswered}
+        />
       ) : (
-        <TypedInput question={question} state={state} setState={setState} />
+        <TypedInput
+          lessonId={lessonId}
+          sectionId={sectionId}
+          question={question}
+          questionIndex={index - 1}
+          state={state}
+          setState={setState}
+          onAnswered={onAnswered}
+        />
       )}
     </article>
   );
 }
 
 function McChoices({
+  lessonId,
+  sectionId,
   question,
+  questionIndex,
   state,
   setState,
+  onAnswered,
 }: {
+  lessonId: string;
+  sectionId: string;
   question: LuisterenQuestion;
+  questionIndex: number;
   state: AnswerState;
   setState: (s: AnswerState) => void;
+  onAnswered: (correct: boolean) => void;
 }) {
   const choices = question.choices ?? [];
   const correctIndex = question.correctIndex ?? 0;
@@ -156,9 +236,19 @@ function McChoices({
             key={i}
             type="button"
             disabled={locked}
-            onClick={() =>
-              setState({ kind: 'mc', picked: i, correct: isCorrect })
-            }
+            onClick={() => {
+              setState({ kind: 'mc', picked: i, correct: isCorrect });
+              onAnswered(isCorrect);
+              void saveListeningAttempt({
+                lessonId,
+                sectionId,
+                questionIndex,
+                questionNl: question.questionNl,
+                answer: c,
+                expected: choices[correctIndex] ?? '',
+                correct: isCorrect,
+              });
+            }}
             className={`inline-flex min-h-12 items-center justify-center rounded-lg border px-4 py-2 text-base font-semibold transition-colors disabled:cursor-default ${cls}`}
             aria-pressed={isPicked}
           >
@@ -171,13 +261,21 @@ function McChoices({
 }
 
 function TypedInput({
+  lessonId,
+  sectionId,
   question,
+  questionIndex,
   state,
   setState,
+  onAnswered,
 }: {
+  lessonId: string;
+  sectionId: string;
   question: LuisterenQuestion;
+  questionIndex: number;
   state: AnswerState;
   setState: (s: AnswerState) => void;
+  onAnswered: (correct: boolean) => void;
 }) {
   const [value, setValue] = useState('');
   const locked = state.kind !== 'unanswered';
@@ -186,6 +284,16 @@ function TypedInput({
   function submit() {
     const correct = normalize(value) === normalize(expected);
     setState({ kind: 'typed', value, correct });
+    onAnswered(correct);
+    void saveListeningAttempt({
+      lessonId,
+      sectionId,
+      questionIndex,
+      questionNl: question.questionNl,
+      answer: value.trim(),
+      expected,
+      correct,
+    });
   }
 
   if (locked && state.kind === 'typed') {
