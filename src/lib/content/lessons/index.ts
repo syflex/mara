@@ -23,6 +23,12 @@ import { A0_LES_21 } from './a0/a0-les-21';
 import { A0_LES_22 } from './a0/a0-les-22';
 import { A0_LES_23 } from './a0/a0-les-23';
 import { A0_LES_24 } from './a0/a0-les-24';
+import { A0_LES_25 } from './a0/a0-les-25';
+import { A0_LES_26 } from './a0/a0-les-26';
+import { A0_LES_27 } from './a0/a0-les-27';
+import { A0_LES_28 } from './a0/a0-les-28';
+import { A0_LES_29 } from './a0/a0-les-29';
+import { A0_LES_30 } from './a0/a0-les-30';
 
 export const LESSONS: readonly Lesson[] = [
   A0_LES_01,
@@ -49,6 +55,12 @@ export const LESSONS: readonly Lesson[] = [
   A0_LES_22,
   A0_LES_23,
   A0_LES_24,
+  A0_LES_25,
+  A0_LES_26,
+  A0_LES_27,
+  A0_LES_28,
+  A0_LES_29,
+  A0_LES_30,
 ].sort((a, b) => a.order - b.order);
 
 export const LESSONS_BY_ID: ReadonlyMap<string, Lesson> = new Map(

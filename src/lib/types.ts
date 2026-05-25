@@ -238,8 +238,10 @@ export interface LuisterenPayload {
 
 export interface SchrijvenItem {
   promptEn: string;
+  // Shown to the learner as the model after they submit. Schrijven is
+  // open-write — no string matching, so a one-of-many template like
+  // "Ik heet Anna. / Mijn naam is Anna." is valid here too.
   expected: string;
-  acceptVariants?: string[];
   hint?: string;
 }
 
