@@ -1,0 +1,215 @@
+import type { Lesson } from '@/lib/types';
+
+export const A0_LES_21: Lesson = {
+  id: 'a0-les-21',
+  track: 'beginner',
+  level: 'A0',
+  order: 21,
+  titleNl: 'Voorwerpen — dingen in huis',
+  titleEn: 'Objects — things at home',
+  estimatedMinutes: 14,
+  coverage: ['§2.7', '§2.12'],
+  prerequisites: ['a0-les-20'],
+  sections: [
+    {
+      id: 'woorden-1',
+      type: 'woorden',
+      payload: {
+        intro:
+          'Dertien voorwerpen die je dagelijks in huis tegenkomt. Vier "het"-woorden (raam, bed, boek, plus de uitzondering) tegen negen "de" — typisch verdeeld. Onthoud per woord het lidwoord.',
+        words: [
+          {
+            nl: 'deur',
+            en: 'door',
+            gender: 'de',
+            audioId: 'deur',
+            exampleNl: 'De deur is open.',
+            exampleEn: 'The door is open.',
+          },
+          {
+            nl: 'raam',
+            en: 'window',
+            gender: 'het',
+            audioId: 'raam',
+            exampleNl: 'Het raam is groot.',
+            exampleEn: 'The window is big.',
+          },
+          {
+            nl: 'tafel',
+            en: 'table',
+            gender: 'de',
+            audioId: 'tafel',
+            exampleNl: 'Het boek ligt op de tafel.',
+            exampleEn: 'The book is on the table.',
+          },
+          {
+            nl: 'stoel',
+            en: 'chair',
+            gender: 'de',
+            audioId: 'stoel',
+            exampleNl: 'Mijn stoel staat naast de tafel.',
+            exampleEn: 'My chair is next to the table.',
+          },
+          {
+            nl: 'bed',
+            en: 'bed',
+            gender: 'het',
+            audioId: 'bed',
+            exampleNl: 'Het bed is in de slaapkamer.',
+            exampleEn: 'The bed is in the bedroom.',
+          },
+          {
+            nl: 'bank',
+            en: 'couch',
+            gender: 'de',
+            audioId: 'bank',
+            exampleNl: 'De bank is in de woonkamer.',
+            exampleEn: 'The couch is in the living room.',
+          },
+          {
+            nl: 'kast',
+            en: 'cabinet / closet',
+            gender: 'de',
+            audioId: 'kast',
+            exampleNl: 'Mijn kleren liggen in de kast.',
+            exampleEn: 'My clothes are in the closet.',
+          },
+          {
+            nl: 'lamp',
+            en: 'lamp',
+            gender: 'de',
+            audioId: 'lamp',
+            exampleNl: 'De lamp is geel.',
+            exampleEn: 'The lamp is yellow.',
+          },
+          {
+            nl: 'boek',
+            en: 'book',
+            gender: 'het',
+            audioId: 'boek-obj',
+            exampleNl: 'Mijn boek is nieuw.',
+            exampleEn: 'My book is new.',
+          },
+          {
+            nl: 'pen',
+            en: 'pen',
+            gender: 'de',
+            audioId: 'pen',
+            exampleNl: 'Heb je een pen?',
+            exampleEn: 'Do you have a pen?',
+          },
+          {
+            nl: 'tas',
+            en: 'bag',
+            gender: 'de',
+            audioId: 'tas',
+            exampleNl: 'Mijn tas is op de stoel.',
+            exampleEn: 'My bag is on the chair.',
+          },
+          {
+            nl: 'telefoon',
+            en: 'phone',
+            gender: 'de',
+            audioId: 'telefoon',
+            exampleNl: 'Mijn telefoon is in mijn tas.',
+            exampleEn: 'My phone is in my bag.',
+          },
+          {
+            nl: 'sleutel',
+            en: 'key',
+            gender: 'de',
+            audioId: 'sleutel',
+            exampleNl: 'Waar is mijn sleutel?',
+            exampleEn: 'Where is my key?',
+          },
+        ],
+      },
+    },
+    {
+      id: 'de-het-1',
+      type: 'de-het',
+      payload: {
+        intro:
+          'Tien voorwerpen door elkaar. Drie zijn "het" (raam, bed, boek), de rest "de". Tip: kleinere voorwerpen die je in de hand kunt houden zijn vaak "de" — maar er zijn uitzonderingen.',
+        items: [
+          { nl: 'tafel', gender: 'de', en: 'table' },
+          { nl: 'stoel', gender: 'de', en: 'chair' },
+          { nl: 'bed', gender: 'het', en: 'bed' },
+          { nl: 'boek', gender: 'het', en: 'book' },
+          { nl: 'lamp', gender: 'de', en: 'lamp' },
+          { nl: 'raam', gender: 'het', en: 'window' },
+          { nl: 'kast', gender: 'de', en: 'closet' },
+          { nl: 'tas', gender: 'de', en: 'bag' },
+          { nl: 'telefoon', gender: 'de', en: 'phone' },
+          { nl: 'sleutel', gender: 'de', en: 'key' },
+        ],
+      },
+    },
+    {
+      id: 'woorden-2',
+      type: 'woorden',
+      payload: {
+        intro:
+          'Drie ruimtelijke voorzetsels — op (on), onder (under), naast (next to). Samen met "in" en "uit" (uit Les 09) heb je nu de basis om te zeggen waar iets is.',
+        words: [
+          {
+            nl: 'op',
+            en: 'on',
+            audioId: 'op',
+            exampleNl: 'Het boek ligt op de tafel.',
+            exampleEn: 'The book is on the table.',
+          },
+          {
+            nl: 'onder',
+            en: 'under',
+            audioId: 'onder',
+            exampleNl: 'Mijn tas ligt onder de stoel.',
+            exampleEn: 'My bag is under the chair.',
+          },
+          {
+            nl: 'naast',
+            en: 'next to / beside',
+            audioId: 'naast',
+            exampleNl: 'De lamp staat naast het bed.',
+            exampleEn: 'The lamp is next to the bed.',
+          },
+        ],
+      },
+    },
+    {
+      id: 'zinsbouw-1',
+      type: 'zinsbouw',
+      payload: {
+        intro:
+          'Bouw vijf zinnen waarin je zegt waar iets is. Gebruik "is" als koppelwerkwoord — A0-eenvoudig. Let goed op de juiste lidwoorden bij elk voorwerp.',
+        items: [
+          {
+            promptEn: 'The book is on the table.',
+            tiles: ['Het', 'boek', 'is', 'op', 'de', 'tafel'],
+            expected: 'Het boek is op de tafel',
+          },
+          {
+            promptEn: 'The lamp is next to the bed.',
+            tiles: ['De', 'lamp', 'is', 'naast', 'het', 'bed'],
+            expected: 'De lamp is naast het bed',
+          },
+          {
+            promptEn: 'The bag is under the chair.',
+            tiles: ['De', 'tas', 'is', 'onder', 'de', 'stoel'],
+            expected: 'De tas is onder de stoel',
+          },
+          {
+            promptEn: 'The key is in the bag.',
+            tiles: ['De', 'sleutel', 'is', 'in', 'de', 'tas'],
+            expected: 'De sleutel is in de tas',
+          },
+          {
+            promptEn: 'The phone is on the couch.',
+            tiles: ['De', 'telefoon', 'is', 'op', 'de', 'bank'],
+            expected: 'De telefoon is op de bank',
+          },
+        ],
+      },
+    },
+  ],
+};
