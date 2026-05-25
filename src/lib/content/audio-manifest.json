@@ -231,5 +231,52 @@
     "dat": "mp3",
     "deze": "mp3",
     "die": "mp3"
+  },
+  "a0-les-13": {
+    "luisteren-meervoud-tellen": "mp3"
+  },
+  "a0-les-14": {
+    "familie": "mp3",
+    "vader": "mp3",
+    "moeder": "mp3",
+    "zoon": "mp3",
+    "dochter": "mp3",
+    "broer": "mp3",
+    "zus": "mp3",
+    "kind": "mp3",
+    "baby": "mp3",
+    "opa": "mp3",
+    "oma": "mp3",
+    "oom": "mp3",
+    "tante": "mp3",
+    "vriend": "mp3",
+    "vriendin": "mp3",
+    "man-fam": "mp3",
+    "vrouw": "mp3",
+    "spreken-fam-vader": "mp3",
+    "spreken-fam-moeder": "mp3",
+    "spreken-fam-broer-zussen": "mp3",
+    "spreken-fam-opa-oma": "mp3"
+  },
+  "a0-les-15": {
+    "hoofd": "mp3",
+    "haar": "mp3",
+    "oog": "mp3",
+    "oor": "mp3",
+    "neus": "mp3",
+    "mond": "mp3",
+    "tand": "mp3",
+    "hand": "mp3",
+    "arm": "mp3",
+    "been": "mp3",
+    "voet": "mp3",
+    "buik": "mp3",
+    "rug": "mp3",
+    "hart": "mp3",
+    "luisteren-pijn": "mp3",
+    "spreken-lich-hoofd": "mp3",
+    "spreken-lich-rug": "mp3",
+    "spreken-lich-haar": "mp3",
+    "spreken-lich-ogen": "mp3"
   }
 }
