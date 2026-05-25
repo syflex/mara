@@ -38,6 +38,14 @@ export const MINI_DIALOOG = {
   lineGapMs: 400,
 } as const;
 
+export const DRILL = {
+  /**
+   * Delay after a correct drill answer before moving to the next item.
+   * Short enough to keep momentum; long enough to register the green state.
+   */
+  autoAdvanceMs: 800,
+} as const;
+
 export const ACTIVITY = {
   /**
    * Daily minutes goal — the Vandaag rings fill against this. Matches the

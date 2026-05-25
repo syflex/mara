@@ -162,6 +162,7 @@ export interface DeHetPayload {
 export interface ConjugatieItem {
   pronoun: string; // "ik", "jij/je", "u", "hij/zij/het", "wij", "jullie", "zij"
   expected: string; // "ben", "bent", "is", …
+  acceptVariants?: string[];
   hint?: string;
   // Optional: play the full pronoun+form (e.g. "ik ben") as a model.
   // audioText is the TTS source — usually pronoun + ' ' + expected.
@@ -291,6 +292,9 @@ export interface Lesson {
   // A0 syllabus. See A0/LESSONS_A0.md.
   coverage: string[];
   sections: LessonSection[];
+  // Words/forms intentionally taught outside a visible `woorden` section
+  // that should still enter SRS after lesson completion.
+  reviewWords?: Woord[];
   prerequisites?: string[];
 }
 

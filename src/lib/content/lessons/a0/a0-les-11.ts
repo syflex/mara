@@ -10,6 +10,12 @@ export const A0_LES_11: Lesson = {
   estimatedMinutes: 15,
   coverage: ['§3.3', '§2.6'],
   prerequisites: ['a0-les-10'],
+  reviewWords: [
+    { nl: 'heb', en: 'have (ik-form)' },
+    { nl: 'hebt', en: 'have (jij/u-form)' },
+    { nl: 'heeft', en: 'has / formal variant of u hebt' },
+    { nl: 'hebben', en: 'to have / have (plural)' },
+  ],
   sections: [
     {
       id: 'uitleg-1',
@@ -80,6 +86,7 @@ export const A0_LES_11: Lesson = {
           {
             pronoun: 'u',
             expected: 'hebt',
+            acceptVariants: ['heeft'],
             hint: 'standaard; "u heeft" is ook goed',
             audioId: 'hebben-u-hebt',
             audioText: 'U hebt.',

@@ -8,8 +8,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { DrillPayload } from '@/lib/types';
 import { audioUrl, hasAudio } from '@/lib/audio';
+import { DRILL } from '@/lib/config';
 
-const AUTO_ADVANCE_MS = 800;
+const { autoAdvanceMs: AUTO_ADVANCE_MS } = DRILL;
 
 interface Props {
   lessonId: string;

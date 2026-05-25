@@ -191,7 +191,7 @@ export const A0_LES_04: Lesson = {
       type: 'spreken',
       payload: {
         intro:
-          'Lees elke ankerwoord hardop. Beluister eerst het model, neem dan jezelf op. Let op de typisch Nederlandse ui en eu — die vergen meer lipronding dan je in het Engels gewend bent.',
+          'Lees elk ankerwoord hardop. Beluister eerst het model, neem dan jezelf op. Let op de typisch Nederlandse ui en eu — die vergen meer lipronding dan je in het Engels gewend bent.',
         lines: [
           { id: 'l1', nl: 'ijs', en: 'ice', audioId: 'klank-ij-ijs' },
           { id: 'l2', nl: 'klein', en: 'small', audioId: 'klank-ei-klein' },
@@ -213,7 +213,7 @@ export const A0_LES_04: Lesson = {
         transcriptEn: 'Today my house is cold, but the book is nice.',
         questions: [
           {
-            questionNl: 'Welke klank hoor je het eerst?',
+            questionNl: 'Welke digraaf uit deze les hoor je het eerst?',
             choices: ['ij', 'ei', 'ui', 'eu', 'oe', 'ou'],
             correctIndex: 0,
           },

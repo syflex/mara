@@ -10,6 +10,16 @@ export const A0_LES_06: Lesson = {
   estimatedMinutes: 13,
   coverage: ['§2.13', '§3.7', '§4'],
   prerequisites: ['a0-les-05'],
+  reviewWords: [
+    { nl: 'wie', en: 'who' },
+    { nl: 'wat', en: 'what' },
+    { nl: 'hoe', en: 'how' },
+    { nl: 'jij', en: 'you (informal, emphasized)' },
+    { nl: 'je', en: 'you (informal)' },
+    { nl: 'jouw', en: 'your (informal)' },
+    { nl: 'u', en: 'you (formal)' },
+    { nl: 'uw', en: 'your (formal)' },
+  ],
   sections: [
     {
       id: 'uitleg-1',

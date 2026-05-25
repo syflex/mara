@@ -149,23 +149,28 @@ export async function markSectionComplete(
 export async function markLessonComplete(lessonId: string): Promise<void> {
   const now = Date.now();
   const existing = await db.lessonProgress.get(lessonId);
+  const lesson = LESSONS.find((l) => l.id === lessonId);
+  const completed = new Set(existing?.sectionIdsCompleted ?? []);
+  const allSectionIds = lesson?.sections.map((s) => s.id) ?? [];
+  if (lesson && !allSectionIds.every((id) => completed.has(id))) return;
   await db.lessonProgress.put({
     lessonId,
     startedAt: existing?.startedAt ?? now,
     completedAt: existing?.completedAt ?? now,
-    sectionIdsCompleted: existing?.sectionIdsCompleted ?? [],
+    sectionIdsCompleted: lesson ? allSectionIds : (existing?.sectionIdsCompleted ?? []),
     updatedAt: now,
   });
-  const lesson = LESSONS.find((l) => l.id === lessonId);
   if (lesson) await importLessonVocab(lesson);
 }
 
 function vocabIdFor(nl: string): string {
   const slug = nl
     .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return `vocab:${slug}`;
+  return `vocab:${slug || encodeURIComponent(nl.toLowerCase())}`;
 }
 
 function woordToVocabCard(word: Woord, lesson: Lesson): VocabCard {
@@ -187,7 +192,7 @@ function woordToVocabCard(word: Woord, lesson: Lesson): VocabCard {
 }
 
 function collectWoorden(lesson: Lesson): Woord[] {
-  const out: Woord[] = [];
+  const out: Woord[] = [...(lesson.reviewWords ?? [])];
   for (const section of lesson.sections) {
     if (section.type === 'woorden') out.push(...section.payload.words);
   }
@@ -196,7 +201,13 @@ function collectWoorden(lesson: Lesson): Woord[] {
 
 /** Idempotent: words already in db.vocab are skipped by id. */
 export async function importLessonVocab(lesson: Lesson): Promise<number> {
-  const words = collectWoorden(lesson);
+  const seen = new Set<string>();
+  const words = collectWoorden(lesson).filter((word) => {
+    const id = vocabIdFor(word.nl);
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
   if (words.length === 0) return 0;
   const ids = words.map((w) => vocabIdFor(w.nl));
   const existing = await db.vocab.bulkGet(ids);

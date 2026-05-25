@@ -10,6 +10,12 @@ export const A0_LES_09: Lesson = {
   estimatedMinutes: 13,
   coverage: ['§2.2', '§2.12', '§4'],
   prerequisites: ['a0-les-08'],
+  reviewWords: [
+    { nl: 'woon', en: 'live (ik-form)' },
+    { nl: 'woont', en: 'lives / live (hij/zij/u-form)' },
+    { nl: 'kom', en: 'come (ik-form)' },
+    { nl: 'komt', en: 'comes / come (hij/zij/u-form)' },
+  ],
   sections: [
     {
       id: 'woorden-1',

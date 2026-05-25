@@ -10,6 +10,12 @@ export const A0_LES_05: Lesson = {
   estimatedMinutes: 15,
   coverage: ['§3.2', '§2.2', '§4'],
   prerequisites: ['a0-les-04'],
+  reviewWords: [
+    { nl: 'ben', en: 'am' },
+    { nl: 'bent', en: 'are (you)' },
+    { nl: 'is', en: 'is' },
+    { nl: 'zijn', en: 'to be / are' },
+  ],
   sections: [
     {
       id: 'uitleg-1',

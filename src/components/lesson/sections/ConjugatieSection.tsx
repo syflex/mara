@@ -61,7 +61,8 @@ function ConjugatieRow({
 
   function submit() {
     if (!value.trim()) return;
-    const correct = normalize(value) === normalize(item.expected);
+    const candidates = [item.expected, ...(item.acceptVariants ?? [])];
+    const correct = candidates.some((candidate) => normalize(value) === normalize(candidate));
     setVerdict(correct ? 'correct' : 'wrong');
   }
 

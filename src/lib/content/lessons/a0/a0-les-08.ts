@@ -102,7 +102,7 @@ export const A0_LES_08: Lesson = {
       type: 'drill',
       payload: {
         intro:
-          'Audio-dictee, harder dan Les 07: je hoort een samengesteld getal (zoals "vierenveertig") en typt de twee cijfers (44). Tien items.',
+          'Audio-dictee, harder dan Les 07: je hoort een samengesteld getal (zoals "zevenenveertig") en typt de twee cijfers (47). Tien items.',
         items: [
           {
             kind: 'typed',
