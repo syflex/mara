@@ -3,6 +3,7 @@ import type {
   LessonProgress,
   LessonSectionResult,
   ListeningAttempt,
+  PracticeReviewCard,
   SpeakingAttempt,
   VocabCard,
   WritingAttempt,
@@ -15,6 +16,7 @@ export class DutchDB extends Dexie {
   writingAttempts!: Table<WritingAttempt, string>;
   listeningAttempts!: Table<ListeningAttempt, string>;
   speakingAttempts!: Table<SpeakingAttempt, string>;
+  practiceReviewCards!: Table<PracticeReviewCard, string>;
 
   constructor() {
     super('dutch-app');
@@ -48,6 +50,9 @@ export class DutchDB extends Dexie {
       writingAttempts: 'id, lessonId, sectionId, submittedAt',
       listeningAttempts: 'id, lessonId, sectionId, correct, submittedAt',
       speakingAttempts: 'id, lessonId, sectionId, lineId, recordedAt',
+    });
+    this.version(5).stores({
+      practiceReviewCards: 'id, kind, lessonId, sectionId, srs.due, updatedAt',
     });
   }
 }

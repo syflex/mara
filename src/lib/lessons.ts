@@ -1,5 +1,6 @@
 import { db } from './db';
 import { LESSONS } from './content/lessons';
+import { importLessonPracticeCards } from './practice';
 import { newSrsState } from './srs';
 import type {
   Lesson,
@@ -166,7 +167,10 @@ export async function markLessonComplete(lessonId: string): Promise<void> {
     sectionIdsCompleted: lesson ? allSectionIds : (existing?.sectionIdsCompleted ?? []),
     updatedAt: now,
   });
-  if (lesson) await importLessonVocab(lesson);
+  if (lesson) {
+    await importLessonVocab(lesson);
+    await importLessonPracticeCards(lesson);
+  }
 }
 
 function vocabIdFor(word: Pick<Woord, 'nl' | 'srsKey'>): string {

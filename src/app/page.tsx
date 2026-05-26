@@ -13,6 +13,7 @@ import {
   recentLessons,
   relativeDayLabel,
 } from '@/lib/lessons';
+import { backfillPracticeCards, practiceDueCounts } from '@/lib/practice';
 import { dueSoonCount } from '@/lib/srs';
 import { useTodayMinutes } from '@/lib/activity';
 import { ACTIVITY } from '@/lib/config';
@@ -72,6 +73,7 @@ function TrackSwitcher({
 function BeginnerTrack() {
   useEffect(() => {
     void backfillLessonVocab();
+    void backfillPracticeCards();
   }, []);
 
   const progressRows = useLiveQuery(() => db.lessonProgress.toArray(), []);
@@ -79,6 +81,7 @@ function BeginnerTrack() {
     () => db.vocab.where('source').equals('lesson').toArray(),
     [],
   );
+  const practiceCards = useLiveQuery(() => db.practiceReviewCards.toArray(), []);
   const todayMinutes = useTodayMinutes();
 
   const progressByLesson = indexProgress(progressRows);
@@ -87,8 +90,13 @@ function BeginnerTrack() {
   const streakDays = computeStreakDays(progressRows);
   const recent = recentLessons(progressRows, 3);
   const vocabStats = vocab ? dueSoonCount(vocab) : null;
+  const practiceStats = practiceDueCounts(practiceCards);
   const masteredCount = vocab ? countMastered(vocab) : 0;
-  const reviewCount = vocabStats ? vocabStats.due + vocabStats.newCount : 0;
+  const reviewCount =
+    (vocabStats ? vocabStats.due + vocabStats.newCount : 0) +
+    practiceStats.due +
+    practiceStats.newCount;
+  const reviewTotal = (vocab?.length ?? 0) + practiceStats.total;
 
   const dateLabel = useDateLabel();
   const greeting = useGreeting();
@@ -116,7 +124,7 @@ function BeginnerTrack() {
       )}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <ReviewCard count={reviewCount} total={vocab?.length ?? 0} />
+        <ReviewCard count={reviewCount} total={reviewTotal} />
         <StreakCard days={streakDays} minutesToday={todayMinutes} />
       </div>
 
@@ -350,8 +358,8 @@ function ReviewCard({ count, total }: { count: number; total: number }) {
       <p className="mt-2 text-2xl font-semibold tabular-nums">{count}</p>
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         {hasWork
-          ? `woorden klaar van ${total}`
-          : `niets klaar · ${total} woorden`}
+          ? `items klaar van ${total}`
+          : `niets klaar · ${total} items`}
       </p>
     </Link>
   );

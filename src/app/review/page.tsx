@@ -5,24 +5,34 @@ import { useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
 import { backfillLessonVocab } from '@/lib/lessons';
+import { backfillPracticeCards, practiceDueCounts } from '@/lib/practice';
 import { dueSoonCount } from '@/lib/srs';
 
 export default function ReviewPage() {
   useEffect(() => {
     void backfillLessonVocab();
+    void backfillPracticeCards();
   }, []);
 
   const vocab = useLiveQuery(
     () => db.vocab.where('source').equals('lesson').toArray(),
     [],
   );
-  const writingAttempts = useLiveQuery(() => db.writingAttempts.toArray(), []);
-  const listeningAttempts = useLiveQuery(() => db.listeningAttempts.toArray(), []);
+  const writingCards = useLiveQuery(
+    () => db.practiceReviewCards.where('kind').equals('writing').toArray(),
+    [],
+  );
+  const listeningCards = useLiveQuery(
+    () => db.practiceReviewCards.where('kind').equals('listening').toArray(),
+    [],
+  );
   const stats = vocab ? dueSoonCount(vocab) : null;
   const ready = stats ? stats.due + stats.newCount : 0;
   const total = stats?.total ?? 0;
-  const writingCount = writingAttempts?.length ?? 0;
-  const listeningCount = listeningAttempts?.length ?? 0;
+  const writingStats = practiceDueCounts(writingCards);
+  const listeningStats = practiceDueCounts(listeningCards);
+  const writingReady = writingStats.due + writingStats.newCount;
+  const listeningReady = listeningStats.due + listeningStats.newCount;
 
   return (
     <div className="space-y-6">
@@ -50,24 +60,28 @@ export default function ReviewPage() {
         <ReviewRow
           title="Schrijven"
           subtitle={
-            writingAttempts === undefined
+            writingCards === undefined
               ? 'Laden…'
-              : writingCount === 0
+              : writingStats.total === 0
                 ? 'Komt na schrijfoefeningen'
-                : `${writingCount} antwoorden`
+                : writingReady === 0
+                  ? `Geen prompts klaar · ${writingStats.total} totaal`
+                  : `${writingReady} klaar · ${writingStats.total} totaal`
           }
-          href={writingCount > 0 ? '/review/schrijven' : null}
+          href={writingReady > 0 ? '/review/schrijven' : null}
         />
         <ReviewRow
           title="Luisteren"
           subtitle={
-            listeningAttempts === undefined
+            listeningCards === undefined
               ? 'Laden…'
-              : listeningCount === 0
+              : listeningStats.total === 0
                 ? 'Komt na luisteroefeningen'
-                : `${listeningCount} antwoorden`
+                : listeningReady === 0
+                  ? `Geen vragen klaar · ${listeningStats.total} totaal`
+                  : `${listeningReady} klaar · ${listeningStats.total} totaal`
           }
-          href={listeningCount > 0 ? '/review/luisteren' : null}
+          href={listeningReady > 0 ? '/review/luisteren' : null}
         />
       </ul>
 

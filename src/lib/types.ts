@@ -328,6 +328,7 @@ export interface LessonSectionResult {
 
 export interface WritingAttempt {
   id: string;
+  cardId?: string;
   lessonId: string;
   sectionId: string;
   itemIndex: number;
@@ -339,6 +340,7 @@ export interface WritingAttempt {
 
 export interface ListeningAttempt {
   id: string;
+  cardId?: string;
   lessonId: string;
   sectionId: string;
   questionIndex: number;
@@ -347,6 +349,27 @@ export interface ListeningAttempt {
   expected: string;
   correct: boolean;
   submittedAt: number;
+}
+
+export type PracticeReviewKind = 'writing' | 'listening';
+
+export interface PracticeReviewCard {
+  id: string;
+  kind: PracticeReviewKind;
+  lessonId: string;
+  sectionId: string;
+  itemIndex: number;
+  prompt: string;
+  promptEn?: string;
+  expected: string;
+  choices?: string[];
+  audioId?: string;
+  transcriptNl?: string;
+  transcriptEn?: string;
+  srs: SrsState;
+  createdAt: number;
+  updatedAt: number;
+  lastAttemptId?: string;
 }
 
 export interface SpeakingAttempt {
