@@ -46,6 +46,21 @@ export const DRILL = {
   autoAdvanceMs: 800,
 } as const;
 
+export const REVIEW = {
+  /**
+   * Hard cap on a single unified review session, so a backlog (or a long gap
+   * away) can't blow the daily time budget. The learner can always stop early;
+   * this just bounds the default run length.
+   */
+  sessionMax: 20,
+  /**
+   * Max brand-new (never-reviewed) cards introduced in one session, across all
+   * skills combined. Due cards come first; new cards fill the remainder up to
+   * this many, so fresh material is paced rather than dumped all at once.
+   */
+  newPerSession: 8,
+} as const;
+
 export const ACTIVITY = {
   /**
    * Daily minutes goal — the Vandaag rings fill against this. Matches the

@@ -8,13 +8,21 @@
 
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/lib/db';
-import { computeStreakDays } from '@/lib/lessons';
+import { computeStreakDays, srsReviewTimestamps } from '@/lib/lessons';
 import { useTodayMinutes } from '@/lib/activity';
 import { ACTIVITY } from '@/lib/config';
 
 export default function StatusPills() {
   const progressRows = useLiveQuery(() => db.lessonProgress.toArray(), []);
-  const streak = computeStreakDays(progressRows);
+  const vocab = useLiveQuery(
+    () => db.vocab.where('source').equals('lesson').toArray(),
+    [],
+  );
+  const practiceCards = useLiveQuery(() => db.practiceReviewCards.toArray(), []);
+  const streak = computeStreakDays(
+    progressRows,
+    srsReviewTimestamps(vocab, practiceCards),
+  );
   const minutes = useTodayMinutes();
   const goal = ACTIVITY.goalMinutes;
   const minutesReached = minutes >= goal;

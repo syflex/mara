@@ -12,6 +12,7 @@ import {
   nextUnfinishedLesson,
   recentLessons,
   relativeDayLabel,
+  srsReviewTimestamps,
 } from '@/lib/lessons';
 import { backfillPracticeCards, practiceDueCounts } from '@/lib/practice';
 import { dueSoonCount } from '@/lib/srs';
@@ -87,7 +88,10 @@ function BeginnerTrack() {
   const progressByLesson = indexProgress(progressRows);
   const { completed, total } = completionStats(progressByLesson);
   const next = nextUnfinishedLesson(progressByLesson);
-  const streakDays = computeStreakDays(progressRows);
+  const streakDays = computeStreakDays(
+    progressRows,
+    srsReviewTimestamps(vocab, practiceCards),
+  );
   const recent = recentLessons(progressRows, 3);
   const vocabStats = vocab ? dueSoonCount(vocab) : null;
   const practiceStats = practiceDueCounts(practiceCards);
@@ -374,7 +378,7 @@ function StreakCard({
 }) {
   const subtitle = useMemo(() => {
     if (days === 0) return 'Begin vandaag';
-    if (minutesToday === 0) return 'Houd je streak vast — open een les';
+    if (minutesToday === 0) return 'Houd je streak vast — les of review';
     return `${minutesToday}m vandaag`;
   }, [days, minutesToday]);
 

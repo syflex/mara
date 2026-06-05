@@ -6,6 +6,7 @@ import type {
   Lesson,
   LessonProgress,
   PartOfSpeech,
+  SrsState,
   VocabCard,
   Woord,
 } from './types';
@@ -69,17 +70,44 @@ function dayKey(ts: number): string {
 }
 
 /**
- * Consecutive days with at least one progress update, counting back from
- * today. If today has no activity yet, the streak counts back from
- * yesterday — so opening the app fresh in the morning doesn't show a
- * broken streak. Two empty days in a row breaks it.
+ * Pull review day-stamps out of SRS history so days spent purely reviewing
+ * (no lesson opened) still count as active. `srs.lastReview` only records a
+ * card's *most recent* review, so this can under-count a day where every
+ * card reviewed that day was reviewed again later — an acceptable
+ * approximation, and strictly better than ignoring review activity. Pass any
+ * mix of vocab and practice cards.
+ */
+export function srsReviewTimestamps(
+  ...itemGroups: ({ srs: SrsState }[] | undefined)[]
+): number[] {
+  const out: number[] = [];
+  for (const group of itemGroups) {
+    for (const item of group ?? []) {
+      const t = item.srs.lastReview;
+      if (typeof t === 'number' && Number.isFinite(t)) out.push(t);
+    }
+  }
+  return out;
+}
+
+/**
+ * Consecutive days with at least one activity, counting back from today.
+ * Activity = a lesson progress update OR an SRS review (pass review
+ * timestamps via {@link srsReviewTimestamps}) — a review-only day keeps the
+ * streak alive, since daily review is exactly the habit the streak rewards.
+ * If today has no activity yet, the streak counts back from yesterday — so
+ * opening the app fresh in the morning doesn't show a broken streak. Two
+ * empty days in a row breaks it.
  */
 export function computeStreakDays(
   rows: LessonProgress[] | undefined,
+  reviewTimestamps: number[] = [],
   now: Date = new Date(),
 ): number {
-  if (!rows || rows.length === 0) return 0;
-  const activeDays = new Set(rows.map((p) => dayKey(p.updatedAt)));
+  const activeDays = new Set<string>();
+  for (const p of rows ?? []) activeDays.add(dayKey(p.updatedAt));
+  for (const ts of reviewTimestamps) activeDays.add(dayKey(ts));
+  if (activeDays.size === 0) return 0;
   const probe = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   if (!activeDays.has(dayKey(probe.getTime()))) {
     probe.setDate(probe.getDate() - 1);

@@ -29,8 +29,9 @@ import { A0_LES_27 } from './a0/a0-les-27';
 import { A0_LES_28 } from './a0/a0-les-28';
 import { A0_LES_29 } from './a0/a0-les-29';
 import { A0_LES_30 } from './a0/a0-les-30';
+import { VERDER_KIJKEN } from './a0/verder-kijken';
 
-export const LESSONS: readonly Lesson[] = [
+const RAW_LESSONS: readonly Lesson[] = [
   A0_LES_01,
   A0_LES_02,
   A0_LES_03,
@@ -62,6 +63,15 @@ export const LESSONS: readonly Lesson[] = [
   A0_LES_29,
   A0_LES_30,
 ].sort((a, b) => a.order - b.order);
+
+// Attach curated "verder kijken" videos (kept centrally so the source of
+// truth mirrors A0/LESSONS_A0.md) without editing every lesson file. A lesson
+// that already declares its own verderKijken keeps it.
+export const LESSONS: readonly Lesson[] = RAW_LESSONS.map((lesson) =>
+  lesson.verderKijken || !VERDER_KIJKEN[lesson.id]
+    ? lesson
+    : { ...lesson, verderKijken: VERDER_KIJKEN[lesson.id] },
+);
 
 export const LESSONS_BY_ID: ReadonlyMap<string, Lesson> = new Map(
   LESSONS.map((l) => [l.id, l]),

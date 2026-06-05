@@ -15,7 +15,12 @@ import { sectionResultId } from '@/lib/practice';
 import { useTrackTimeOnPage } from '@/lib/activity';
 import SectionRenderer from '@/components/lesson/SectionRenderer';
 import { sectionLabel } from '@/components/lesson/sections/registry';
-import type { LessonSection, SectionCompletion, SectionType } from '@/lib/types';
+import type {
+  LessonSection,
+  SectionCompletion,
+  SectionType,
+  VerderKijken,
+} from '@/lib/types';
 
 const EVIDENCE_REQUIRED_TYPES = new Set<SectionType>([
   'de-het',
@@ -215,12 +220,17 @@ export default function LessonViewerClient({
       )}
 
       {showCelebration ? (
-        <CompletionCard
-          lessonOrder={lesson.order}
-          recap={recapCounts(lesson)}
-          reviewHref={`/lessen/${lesson.id}?review=1`}
-          nextHref={nextLesson ? `/lessen/${nextLesson.id}` : null}
-        />
+        <>
+          <CompletionCard
+            lessonOrder={lesson.order}
+            recap={recapCounts(lesson)}
+            reviewHref={`/lessen/${lesson.id}?review=1`}
+            nextHref={nextLesson ? `/lessen/${nextLesson.id}` : null}
+          />
+          {lesson.verderKijken && lesson.verderKijken.length > 0 && (
+            <VerderKijkenCard items={lesson.verderKijken} />
+          )}
+        </>
       ) : (
         section && (
           <div>
@@ -406,6 +416,73 @@ function recapText({ words, lines }: RecapCounts): string | null {
   if (words > 0) parts.push(`${words} ${words === 1 ? 'woord' : 'woorden'} geleerd`);
   if (lines > 0) parts.push(`${lines} ${lines === 1 ? 'zin' : 'zinnen'} geoefend`);
   return parts.length > 0 ? parts.join(' · ') : null;
+}
+
+function VerderKijkenCard({ items }: { items: VerderKijken[] }) {
+  return (
+    <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">
+        Verder kijken
+      </p>
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        Sluit af met een korte video — de luisterstap van je dagelijkse ronde.
+      </p>
+      <ul className="mt-4 space-y-2">
+        {items.map((item) => (
+          <li key={item.url}>
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 items-center gap-3 rounded-2xl border border-zinc-200 bg-white px-4 py-3 transition-colors hover:bg-zinc-50 active:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+            >
+              <span className="grid h-9 w-9 shrink-0 place-content-center rounded-full bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300">
+                <PlayIcon />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                  {item.title}
+                </span>
+                <span className="block text-xs text-zinc-500 dark:text-zinc-400">
+                  {item.creator}
+                </span>
+              </span>
+              <ExternalLinkIcon />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function PlayIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden>
+      <path d="M7 5.5v13l11-6.5z" />
+    </svg>
+  );
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0 text-zinc-400 dark:text-zinc-500"
+      aria-hidden
+    >
+      <path d="M14 5h5v5" />
+      <path d="M19 5l-8 8" />
+      <path d="M19 14v5H5V5h5" />
+    </svg>
+  );
 }
 
 function CompletionCard({

@@ -287,6 +287,15 @@ export interface SectionProps<K extends SectionType> {
   onCompletionChange?: (completion: SectionCompletion) => void;
 }
 
+// An external "watch more" resource (Kim / Bart / juf M video, etc.) shown at
+// the end of a lesson — the "Listen" leg of the daily Review + Lesson + Listen
+// loop. Curated in A0/LESSONS_A0.md; attached to lessons in the content index.
+export interface VerderKijken {
+  title: string;
+  creator: string;
+  url: string;
+}
+
 export interface Lesson {
   id: string;
   track: TrackId;
@@ -304,6 +313,8 @@ export interface Lesson {
   // that should still enter SRS after lesson completion.
   reviewWords?: Woord[];
   prerequisites?: string[];
+  // Optional "verder kijken" videos shown on lesson completion.
+  verderKijken?: VerderKijken[];
 }
 
 export interface LessonProgress {
