@@ -97,6 +97,113 @@ export function collectPracticeCards(lesson: Lesson): PracticeReviewCard[] {
         });
       });
     }
+
+    // Grammar sections become typed/MC "grammar" review cards so conjugation,
+    // articles, word order and drills keep re-surfacing on the forgetting
+    // curve instead of being seen once in the lesson.
+    if (section.type === 'conjugatie') {
+      const { infinitive } = section.payload;
+      section.payload.items.forEach((item, itemIndex) => {
+        cards.push({
+          id: practiceCardId('grammar', lesson.id, section.id, itemIndex),
+          kind: 'grammar',
+          lessonId: lesson.id,
+          sectionId: section.id,
+          itemIndex,
+          prompt: `${infinitive} — ${item.pronoun}`,
+          expected: item.expected,
+          acceptVariants: item.acceptVariants,
+          audioId: item.audioId,
+          srs: newSrsState(),
+          createdAt: now,
+          updatedAt: now,
+        });
+      });
+    }
+
+    if (section.type === 'de-het') {
+      section.payload.items.forEach((item, itemIndex) => {
+        cards.push({
+          id: practiceCardId('grammar', lesson.id, section.id, itemIndex),
+          kind: 'grammar',
+          lessonId: lesson.id,
+          sectionId: section.id,
+          itemIndex,
+          prompt: item.nl,
+          promptEn: item.en,
+          expected: item.gender,
+          choices: ['de', 'het'],
+          srs: newSrsState(),
+          createdAt: now,
+          updatedAt: now,
+        });
+      });
+    }
+
+    if (section.type === 'drill') {
+      section.payload.items.forEach((item, itemIndex) => {
+        if (item.kind === 'mc') {
+          const correct = item.choices.find((c) => c.correct);
+          const prompt =
+            item.promptNl ?? item.promptEn ?? (item.audioId ? 'Wat hoor je?' : '');
+          if (!correct || (!prompt && !item.audioId)) return;
+          cards.push({
+            id: practiceCardId('grammar', lesson.id, section.id, itemIndex),
+            kind: 'grammar',
+            lessonId: lesson.id,
+            sectionId: section.id,
+            itemIndex,
+            prompt,
+            promptEn:
+              item.promptEn && item.promptEn !== prompt ? item.promptEn : undefined,
+            expected: correct.text,
+            choices: item.choices.map((c) => c.text),
+            audioId: item.audioId,
+            srs: newSrsState(),
+            createdAt: now,
+            updatedAt: now,
+          });
+        } else {
+          const prompt =
+            item.promptNl ?? (item.audioId ? 'Typ wat je hoort.' : item.promptEn ?? '');
+          if (!prompt && !item.audioId) return;
+          cards.push({
+            id: practiceCardId('grammar', lesson.id, section.id, itemIndex),
+            kind: 'grammar',
+            lessonId: lesson.id,
+            sectionId: section.id,
+            itemIndex,
+            prompt,
+            promptEn:
+              item.promptEn && item.promptEn !== prompt ? item.promptEn : undefined,
+            expected: item.expected,
+            acceptVariants: item.acceptVariants,
+            audioId: item.audioId,
+            srs: newSrsState(),
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
+      });
+    }
+
+    if (section.type === 'zinsbouw') {
+      section.payload.items.forEach((item, itemIndex) => {
+        cards.push({
+          id: practiceCardId('grammar', lesson.id, section.id, itemIndex),
+          kind: 'grammar',
+          lessonId: lesson.id,
+          sectionId: section.id,
+          itemIndex,
+          prompt: item.promptEn,
+          expected: item.expected,
+          acceptVariants: item.acceptVariants,
+          srs: newSrsState(),
+          createdAt: now,
+          updatedAt: now,
+        });
+      });
+    }
   }
   return cards;
 }
@@ -121,7 +228,9 @@ export async function importLessonPracticeCards(lesson: Lesson): Promise<number>
       current.audioId !== next.audioId ||
       current.transcriptNl !== next.transcriptNl ||
       current.transcriptEn !== next.transcriptEn ||
-      JSON.stringify(current.choices ?? []) !== JSON.stringify(next.choices ?? [])
+      JSON.stringify(current.choices ?? []) !== JSON.stringify(next.choices ?? []) ||
+      JSON.stringify(current.acceptVariants ?? []) !==
+        JSON.stringify(next.acceptVariants ?? [])
     ) {
       toUpdate.push({
         ...current,
@@ -129,6 +238,7 @@ export async function importLessonPracticeCards(lesson: Lesson): Promise<number>
         promptEn: next.promptEn,
         expected: next.expected,
         choices: next.choices,
+        acceptVariants: next.acceptVariants,
         audioId: next.audioId,
         transcriptNl: next.transcriptNl,
         transcriptEn: next.transcriptEn,

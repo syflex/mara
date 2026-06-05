@@ -15,9 +15,9 @@ import {
   srsReviewTimestamps,
 } from '@/lib/lessons';
 import { backfillPracticeCards, practiceDueCounts } from '@/lib/practice';
-import { dueSoonCount } from '@/lib/srs';
+import { buildReviewQueue } from '@/lib/review-session';
 import { useTodayMinutes } from '@/lib/activity';
-import { ACTIVITY } from '@/lib/config';
+import { ACTIVITY, REVIEW } from '@/lib/config';
 import { TRACKS, type Lesson, type TrackId, type VocabCard } from '@/lib/types';
 
 export default function Home() {
@@ -84,6 +84,9 @@ function BeginnerTrack() {
   );
   const practiceCards = useLiveQuery(() => db.practiceReviewCards.toArray(), []);
   const todayMinutes = useTodayMinutes();
+  // Snapshot the clock once so the session-size estimate stays stable across
+  // re-renders (and out of the render body, per the project's purity rule).
+  const [now] = useState(() => Date.now());
 
   const progressByLesson = indexProgress(progressRows);
   const { completed, total } = completionStats(progressByLesson);
@@ -93,13 +96,22 @@ function BeginnerTrack() {
     srsReviewTimestamps(vocab, practiceCards),
   );
   const recent = recentLessons(progressRows, 3);
-  const vocabStats = vocab ? dueSoonCount(vocab) : null;
   const practiceStats = practiceDueCounts(practiceCards);
   const masteredCount = vocab ? countMastered(vocab) : 0;
-  const reviewCount =
-    (vocabStats ? vocabStats.due + vocabStats.newCount : 0) +
-    practiceStats.due +
-    practiceStats.newCount;
+  // Show what today's session would actually pull (capped + paced), not the raw
+  // due+new backlog — otherwise the new grammar pool reads as a scary number.
+  const reviewCount = useMemo(() => {
+    if (!vocab || !practiceCards) return 0;
+    return buildReviewQueue({
+      vocab,
+      writing: practiceCards.filter((c) => c.kind === 'writing'),
+      listening: practiceCards.filter((c) => c.kind === 'listening'),
+      grammar: practiceCards.filter((c) => c.kind === 'grammar'),
+      now,
+      sessionMax: REVIEW.sessionMax,
+      newPerSession: REVIEW.newPerSession,
+    }).length;
+  }, [vocab, practiceCards, now]);
   const reviewTotal = (vocab?.length ?? 0) + practiceStats.total;
 
   const dateLabel = useDateLabel();
@@ -362,8 +374,8 @@ function ReviewCard({ count, total }: { count: number; total: number }) {
       <p className="mt-2 text-2xl font-semibold tabular-nums">{count}</p>
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         {hasWork
-          ? `items klaar van ${total}`
-          : `niets klaar · ${total} items`}
+          ? `klaar voor nu · ${total} in herhaling`
+          : `niets klaar · ${total} in herhaling`}
       </p>
     </Link>
   );

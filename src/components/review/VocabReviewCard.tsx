@@ -1,7 +1,10 @@
 'use client';
 
-// Spaced-review card for a vocab word: show Dutch (+ article + audio), reveal
-// English + example, then self-rate. Persists on rate and calls onRated().
+// Spaced-review card for a vocab word. Two directions:
+//  - recognition (default): show Dutch (+ article + audio) → reveal English.
+//  - production: show English → recall the Dutch word AND its article, then
+//    reveal. Audio is held until reveal in production so it can't give the
+//    answer away. Self-rated either way. Persists on rate and calls onRated().
 // Consumers MUST key this by card.id so internal state resets per card.
 
 import { useState } from 'react';
@@ -14,14 +17,19 @@ import { RatingButtons } from './RatingButtons';
 
 export default function VocabReviewCard({
   card,
+  direction = 'recognition',
   onRated,
 }: {
   card: VocabCard;
+  direction?: 'recognition' | 'production';
   onRated?: () => void;
 }) {
   const [revealed, setRevealed] = useState(false);
   const [pending, setPending] = useState(false);
-  const hasAudio = card.lessonId && card.audioId;
+  const production = direction === 'production';
+  const hasAudio = !!(card.lessonId && card.audioId);
+  // In production the audio is the Dutch word — hold it until reveal.
+  const showAudio = hasAudio && (!production || revealed);
 
   async function rate(rating: SrsRating) {
     if (pending) return;
@@ -30,10 +38,28 @@ export default function VocabReviewCard({
     onRated?.();
   }
 
+  const dutch = (
+    <p className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+      {card.gender && <ArticleChip gender={card.gender} />}
+      {card.dutch}
+    </p>
+  );
+
+  const example = card.exampleNl ? (
+    <div className="mt-6 border-t border-zinc-100 pt-4 dark:border-zinc-800">
+      <p className="text-sm italic text-zinc-700 dark:text-zinc-300">
+        &ldquo;{card.exampleNl}&rdquo;
+      </p>
+      {card.exampleEn && (
+        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{card.exampleEn}</p>
+      )}
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-6">
       <div className="relative rounded-3xl bg-white p-10 text-center shadow-sm ring-1 ring-zinc-900/5 dark:bg-zinc-900 dark:ring-white/5">
-        {hasAudio && (
+        {showAudio && (
           <div className="absolute right-4 top-4">
             <AudioPlayer
               lessonId={card.lessonId as string}
@@ -43,26 +69,37 @@ export default function VocabReviewCard({
           </div>
         )}
 
-        <p className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          {card.gender && <ArticleChip gender={card.gender} />}
-          {card.dutch}
-        </p>
-
-        {revealed ? (
+        {production ? (
           <>
-            <p className="mt-3 text-base text-zinc-600 dark:text-zinc-300">{card.english}</p>
-            {card.exampleNl && (
-              <div className="mt-6 border-t border-zinc-100 pt-4 dark:border-zinc-800">
-                <p className="text-sm italic text-zinc-700 dark:text-zinc-300">
-                  &ldquo;{card.exampleNl}&rdquo;
-                </p>
-                {card.exampleEn && (
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{card.exampleEn}</p>
-                )}
+            <p className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              {card.english}
+            </p>
+            {revealed ? (
+              <div className="mt-3">
+                {dutch}
+                {example}
               </div>
+            ) : (
+              <p className="mt-2 text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                Wat is dit in het Nederlands?{card.gender ? ' (met lidwoord)' : ''}
+              </p>
             )}
           </>
         ) : (
+          <>
+            {dutch}
+            {revealed && (
+              <>
+                <p className="mt-3 text-base text-zinc-600 dark:text-zinc-300">
+                  {card.english}
+                </p>
+                {example}
+              </>
+            )}
+          </>
+        )}
+
+        {!revealed && (
           <button
             type="button"
             onClick={() => setRevealed(true)}
@@ -76,7 +113,9 @@ export default function VocabReviewCard({
       {revealed && (
         <div>
           <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">
-            Hoe goed wist je dit? Dit bepaalt wanneer je het woord weer ziet.
+            {production
+              ? 'Wist je het woord én het lidwoord? Dit bepaalt wanneer je het weer ziet.'
+              : 'Hoe goed wist je dit? Dit bepaalt wanneer je het woord weer ziet.'}
           </p>
           <RatingButtons disabled={pending} onRate={rate} />
         </div>

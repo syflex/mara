@@ -7,12 +7,13 @@ import { db } from '@/lib/db';
 import { backfillLessonVocab } from '@/lib/lessons';
 import { backfillPracticeCards } from '@/lib/practice';
 import { useTrackTimeOnPage } from '@/lib/activity';
-import { buildReviewQueue, type ReviewItem } from '@/lib/review-session';
+import { buildReviewQueue, vocabDirection, type ReviewItem } from '@/lib/review-session';
 import { REVIEW } from '@/lib/config';
 import type { PracticeReviewCard, VocabCard } from '@/lib/types';
 import VocabReviewCard from '@/components/review/VocabReviewCard';
 import WritingReviewCard from '@/components/review/WritingReviewCard';
 import ListeningReviewCard from '@/components/review/ListeningReviewCard';
+import GrammarReviewCard from '@/components/review/GrammarReviewCard';
 
 export default function ReviewPage() {
   useTrackTimeOnPage();
@@ -33,8 +34,15 @@ export default function ReviewPage() {
     () => db.practiceReviewCards.where('kind').equals('listening').toArray(),
     [],
   );
+  const grammar = useLiveQuery(
+    () => db.practiceReviewCards.where('kind').equals('grammar').toArray(),
+    [],
+  );
   const loaded =
-    vocab !== undefined && writing !== undefined && listening !== undefined;
+    vocab !== undefined &&
+    writing !== undefined &&
+    listening !== undefined &&
+    grammar !== undefined;
 
   // Bumping `round` remounts <Session>, which rebuilds a fresh frozen queue
   // from the latest data — that's how "Nog een ronde" works.
@@ -56,6 +64,7 @@ export default function ReviewPage() {
         vocab={vocab}
         writing={writing}
         listening={listening}
+        grammar={grammar}
         onNextRound={() => setRound((r) => r + 1)}
       />
     </div>
@@ -66,11 +75,13 @@ function Session({
   vocab,
   writing,
   listening,
+  grammar,
   onNextRound,
 }: {
   vocab: VocabCard[];
   writing: PracticeReviewCard[];
   listening: PracticeReviewCard[];
+  grammar: PracticeReviewCard[];
   onNextRound: () => void;
 }) {
   // `now` and the queue are frozen at mount — a session is one stable run.
@@ -81,6 +92,7 @@ function Session({
       vocab,
       writing,
       listening,
+      grammar,
       now,
       sessionMax: REVIEW.sessionMax,
       newPerSession: REVIEW.newPerSession,
@@ -96,18 +108,20 @@ function Session({
         vocab,
         writing,
         listening,
+        grammar,
         now,
         sessionMax: REVIEW.sessionMax,
         newPerSession: REVIEW.newPerSession,
       }).length,
-    [vocab, writing, listening, now],
+    [vocab, writing, listening, grammar, now],
   );
 
   const total = queue.length;
   const current = queue[index];
 
   if (total === 0) {
-    const hasCards = vocab.length + writing.length + listening.length > 0;
+    const hasCards =
+      vocab.length + writing.length + listening.length + grammar.length > 0;
     return (
       <>
         <Header />
@@ -131,13 +145,21 @@ function Session({
     <>
       <SessionHeader index={index} total={total} kind={current.kind} />
       {current.kind === 'vocab' && (
-        <VocabReviewCard key={current.id} card={current.card} onRated={advance} />
+        <VocabReviewCard
+          key={current.id}
+          card={current.card}
+          direction={vocabDirection(current.card)}
+          onRated={advance}
+        />
       )}
       {current.kind === 'writing' && (
         <WritingReviewCard key={current.id} card={current.card} onRated={advance} />
       )}
       {current.kind === 'listening' && (
         <ListeningReviewCard key={current.id} card={current.card} onRated={advance} />
+      )}
+      {current.kind === 'grammar' && (
+        <GrammarReviewCard key={current.id} card={current.card} onRated={advance} />
       )}
     </>
   );
@@ -158,6 +180,7 @@ const KIND_LABEL: Record<ReviewItem['kind'], string> = {
   vocab: 'Woord',
   writing: 'Schrijven',
   listening: 'Luisteren',
+  grammar: 'Grammatica',
 };
 
 function SessionHeader({

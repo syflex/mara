@@ -362,7 +362,7 @@ export interface ListeningAttempt {
   submittedAt: number;
 }
 
-export type PracticeReviewKind = 'writing' | 'listening';
+export type PracticeReviewKind = 'writing' | 'listening' | 'grammar';
 
 export interface PracticeReviewCard {
   id: string;
@@ -374,6 +374,9 @@ export interface PracticeReviewCard {
   promptEn?: string;
   expected: string;
   choices?: string[];
+  // Alternative spellings accepted as correct for typed auto-check (grammar
+  // production). Empty/absent for multiple-choice cards.
+  acceptVariants?: string[];
   audioId?: string;
   transcriptNl?: string;
   transcriptEn?: string;

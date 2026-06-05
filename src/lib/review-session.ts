@@ -13,15 +13,29 @@ import { isDue } from './srs';
 export type ReviewItem =
   | { kind: 'vocab'; id: string; card: VocabCard }
   | { kind: 'writing'; id: string; card: PracticeReviewCard }
-  | { kind: 'listening'; id: string; card: PracticeReviewCard };
+  | { kind: 'listening'; id: string; card: PracticeReviewCard }
+  | { kind: 'grammar'; id: string; card: PracticeReviewCard };
 
 interface BuildArgs {
   vocab?: VocabCard[];
   writing?: PracticeReviewCard[];
   listening?: PracticeReviewCard[];
+  grammar?: PracticeReviewCard[];
   now?: number;
   sessionMax: number;
   newPerSession: number;
+}
+
+/**
+ * Whether a vocab card should be reviewed in the productive direction
+ * (English → produce Dutch + recall the article) instead of recognition.
+ * Recognition stays the default; once a word has graduated to review state we
+ * ask for production on roughly every third review, so the spaced loop trains
+ * recall and gender — not just recognition — without punishing fresh words.
+ */
+export function vocabDirection(card: VocabCard): 'recognition' | 'production' {
+  if (card.srs.state !== 'review') return 'recognition';
+  return card.srs.reps % 3 === 0 ? 'production' : 'recognition';
 }
 
 /** Round-robin merge: take one from each group in turn so skills alternate. */
@@ -39,6 +53,7 @@ function interleave<T>(groups: T[][]): T[] {
 const wrapVocab = (c: VocabCard): ReviewItem => ({ kind: 'vocab', id: c.id, card: c });
 const wrapWriting = (c: PracticeReviewCard): ReviewItem => ({ kind: 'writing', id: c.id, card: c });
 const wrapListening = (c: PracticeReviewCard): ReviewItem => ({ kind: 'listening', id: c.id, card: c });
+const wrapGrammar = (c: PracticeReviewCard): ReviewItem => ({ kind: 'grammar', id: c.id, card: c });
 
 const isReviewDue = (s: SrsState, now: number) => s.state !== 'new' && isDue(s, now);
 const isFresh = (s: SrsState) => s.state === 'new';
@@ -48,6 +63,7 @@ export function buildReviewQueue({
   vocab = [],
   writing = [],
   listening = [],
+  grammar = [],
   now = Date.now(),
   sessionMax,
   newPerSession,
@@ -57,6 +73,7 @@ export function buildReviewQueue({
     vocab.filter((c) => isReviewDue(c.srs, now)).map(wrapVocab).sort(byDue),
     writing.filter((c) => isReviewDue(c.srs, now)).map(wrapWriting).sort(byDue),
     listening.filter((c) => isReviewDue(c.srs, now)).map(wrapListening).sort(byDue),
+    grammar.filter((c) => isReviewDue(c.srs, now)).map(wrapGrammar).sort(byDue),
   ]);
 
   // New cards, interleaved across skills, capped so fresh material is paced.
@@ -64,6 +81,7 @@ export function buildReviewQueue({
     vocab.filter((c) => isFresh(c.srs)).map(wrapVocab),
     writing.filter((c) => isFresh(c.srs)).map(wrapWriting),
     listening.filter((c) => isFresh(c.srs)).map(wrapListening),
+    grammar.filter((c) => isFresh(c.srs)).map(wrapGrammar),
   ]).slice(0, newPerSession);
 
   return [...due, ...fresh].slice(0, sessionMax);

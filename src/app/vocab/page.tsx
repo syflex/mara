@@ -7,6 +7,7 @@ import { db } from '@/lib/db';
 import { backfillLessonVocab } from '@/lib/lessons';
 import { useTrackTimeOnPage } from '@/lib/activity';
 import { isDue } from '@/lib/srs';
+import { vocabDirection } from '@/lib/review-session';
 import type { VocabCard } from '@/lib/types';
 import VocabReviewCard from '@/components/review/VocabReviewCard';
 
@@ -55,7 +56,11 @@ export default function WoordreviewPage() {
 
       {/* Keyed by card id so the card's internal reveal state resets when the
           live query advances the queue after a rating. */}
-      <VocabReviewCard key={current.id} card={current} />
+      <VocabReviewCard
+        key={current.id}
+        card={current}
+        direction={vocabDirection(current)}
+      />
     </div>
   );
 }
